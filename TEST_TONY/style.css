@@ -1,0 +1,67 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 32px;
+    color: #4CAF50;
+    margin-top: 20px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#message {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#score {
+    font-size: 20px;
+    margin-top: 20px;
+    color: #333;
+}
+
+#highScore {
+    font-size: 20px;
+    color: #FF9800;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#timer {
+    font-size: 24px;
+    color: #D32F2F;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.container {
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
