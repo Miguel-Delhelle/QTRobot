@@ -8,7 +8,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 // Détermine l'état de l'émotion (sourire ou tristesse)
 let isHappy = true;
 
-function drawEye(x, y) {
+function drawEyeLeft(x, y) {
     // Grand cercle noir (œil)
     ctx.beginPath();
     ctx.arc(x, y, 50, 0, Math.PI * 2);
@@ -26,6 +26,29 @@ function drawEye(x, y) {
     // Petit reflet bleu foncé
     ctx.beginPath();
     ctx.arc(x - 10, y - 10, 5, 0, Math.PI * 2);
+    ctx.fillStyle = "#444488";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function drawEyeRight(x, y) {
+    // Grand cercle noir (œil)
+    ctx.beginPath();
+    ctx.arc(x, y, 50, 0, Math.PI * 2);
+    ctx.fillStyle = "black";
+    ctx.fill();
+    ctx.closePath();
+
+    // Petit reflet blanc (inversé)
+    ctx.beginPath();
+    ctx.arc(x + 20, y - 20, 10, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+    ctx.closePath();
+
+    // Petit reflet bleu foncé (inversé)
+    ctx.beginPath();
+    ctx.arc(x + 10, y - 10, 5, 0, Math.PI * 2);
     ctx.fillStyle = "#444488";
     ctx.fill();
     ctx.closePath();
@@ -58,8 +81,8 @@ function drawMouth(x, y, isHappy) {
 }
 
 // Dessiner les deux yeux
-drawEye(canvas.width / 100 * 75, 140);
-drawEye(canvas.width / 100 * 25, 140);
+drawEyeLeft(canvas.width / 100 * 75, 140);
+drawEyeRight(canvas.width / 100 * 25, 140);
 
 // Dessiner les sourcils
 drawEyebrow(canvas.width / 100 * 75, 60);
@@ -80,8 +103,8 @@ function toggleEmotion() {
     isHappy = !isHappy;
     clearCanvas();
     // Redessiner les yeux
-    drawEye(canvas.width / 100 * 75, 140);
-    drawEye(canvas.width / 100 * 25, 140);
+    drawEyeLeft(canvas.width / 100 * 75, 140);
+    drawEyeRight(canvas.width / 100 * 25, 140);
     // Redessiner les sourcils
     drawEyebrow(canvas.width / 100 * 75, 60);
     drawEyebrow(canvas.width / 100 * 25, 60);
