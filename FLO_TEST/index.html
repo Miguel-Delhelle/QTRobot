@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Interactif</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #avatar {
+            width: 200px;
+            transition: opacity 0.5s ease-in-out; /* Effet de fondu */
+        }
+    </style>
+</head>
+<body>
+
+<h2>Réponds à la question :</h2>
+<p>2 + 2 = ?</p>
+<input type="text" id="reponse" placeholder="Ta réponse">
+<button onclick="verifierReponse()">Vérifier</button>
+
+<br><br>
+<img id="avatar" src="robot_neutre.png" alt="Avatar">
+
+<script>
+    function verifierReponse() {
+        let reponse = document.getElementById("reponse").value;
+        let avatar = document.getElementById("avatar");
+
+        // Effet de transition fluide
+        avatar.style.opacity = 0;
+
+        setTimeout(() => {
+            if (reponse == "4") {
+                avatar.src = "robot_heureux.png"; // Change l’image pour "heureux"
+            } else {
+                avatar.src = "robot_triste.png"; // Change l’image pour "triste"
+            }
+            avatar.style.opacity = 1;
+        }, 500); // Attends que l'effet de fondu s'applique avant de changer l'image
+    }
+</script>
+
+</body>
+</html>

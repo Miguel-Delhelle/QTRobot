@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot Interactif</title>
+  <style>
+    #avatar {
+      width: 200px;
+      transition: all 0.5s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+<h2>Réponds à la question :</h2>
+<p>2 + 2 = ?</p>
+<input type="text" id="reponse" placeholder="Ta réponse">
+<button onclick="verifierReponse()">Vérifier</button>
+
+<br><br>
+<img id="avatar" src="robot_neutre.png" alt="Avatar">
+
+<!--
+<script>
+  function verifierReponse() {
+    let reponse = document.getElementById("reponse").value;
+    let avatar = document.getElementById("avatar");
+
+    if (reponse == "4") {
+      avatar.src = "robot_heureux.png"; // Affiche l’avatar content
+    } else {
+      avatar.src = "robot_triste.png"; // Affiche l’avatar qui pleure
+    }
+  }
+</script>
+
+-->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js">
+
+  function verifierReponse() {
+    let reponse = document.getElementById("reponse").value;
+    let avatar = document.getElementById("avatar");
+
+    if (reponse == "4") {
+      gsap.to(avatar, { duration: 0.5, opacity: 0, onComplete: () => {
+          avatar.src = "robot_heureux.png";
+          gsap.to(avatar, { duration: 0.5, opacity: 1 });
+        }});
+    } else {
+      gsap.to(avatar, { duration: 0.5, opacity: 0, onComplete: () => {
+          avatar.src = "robot_triste.png";
+          gsap.to(avatar, { duration: 0.5, opacity: 1 });
+        }});
+    }
+  }
+
+</script>
+
+
+</body>
+</html>
