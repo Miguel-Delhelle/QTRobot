@@ -9,6 +9,11 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 let isHappy = true;
 let startY = 0;
 
+// Pour la fonction parler
+let speaking = false;
+let mouthHeight = 30;
+let mouthDirection = 1;
+
 function drawEyeLeft(x, y) {
     // Grand cercle noir (œil)
     ctx.beginPath();
@@ -95,40 +100,25 @@ function drawEyebrow(x, y) {
     ctx.closePath();
 }
 
-function drawMouth(x, y, isHappy) {
-    // Partie supérieure blanche
-    /*ctx.beginPath();
-    ctx.arc(x, y - 10, 60, 0.2 * Math.PI, 0.8 * Math.PI, false);
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = "#ffffff";
-    ctx.stroke();
-    ctx.closePath();*/
-    
+function drawMouth(x, y, isHappy, height = 30) {
     ctx.beginPath();
     ctx.moveTo(x - 50, y - 20);
     ctx.quadraticCurveTo(x - 20, y - 20, x, y - 20);
     ctx.quadraticCurveTo(x + 20, y - 20, x + 50, y - 20);
     ctx.quadraticCurveTo(x + 60, y - 20, x + 60, y - 10);
-
+    
     if (isHappy) {
-        ctx.quadraticCurveTo(x + 55, y + 30, x, y + 30);  // Sourire
-        ctx.quadraticCurveTo(x - 50, y + 30, x - 60, y - 10);
+        ctx.quadraticCurveTo(x + 55, y + height, x, y + height); 
+        ctx.quadraticCurveTo(x - 50, y + height, x - 60, y - 10);
     } else {
-        ctx.quadraticCurveTo(x + 55, y - 20, x, y - 20);  // Triste
+        ctx.quadraticCurveTo(x + 55, y - 20, x, y - 20); 
         ctx.quadraticCurveTo(x - 50, y - 20, x - 60, y - 10);
     }
-
+    
     ctx.quadraticCurveTo(x - 60, y - 20, x - 50, y - 20);
     ctx.fillStyle = "#2D1B3C";
     ctx.fill();
     ctx.closePath();
-
-    // Intérieur violet
-    /*ctx.beginPath();
-    ctx.arc(x, y + 5, 40, 0.2 * Math.PI, 0.8 * Math.PI, false);
-    ctx.fillStyle = "#8C5BAF";
-    ctx.fill();
-    ctx.closePath();*/
 }
 
 // Dessiner les deux yeux
@@ -153,6 +143,31 @@ function toggleEmotion() {
     isHappy = !isHappy;
     startY = 0;
     animate();
+}
+
+// Fonction pour faire parler
+
+function animateMouth() {
+    if (!speaking) return;
+    
+    mouthHeight += mouthDirection * 5;
+    if (mouthHeight > 40 || mouthHeight < 10) {
+        mouthDirection *= -1;
+    }
+    
+    clearCanvas();
+    drawEyeLeft(canvas.width / 100 * 75, 140);
+    drawEyeRight(canvas.width / 100 * 25, 140);
+    drawEyebrow(canvas.width / 100 * 75, 60);
+    drawEyebrow(canvas.width / 100 * 25, 60);
+    drawMouth(canvas.width / 2, 300, isHappy, mouthHeight);
+    
+    requestAnimationFrame(animateMouth);
+}
+
+function toggleSpeaking() {
+    speaking = !speaking;
+    if (speaking) animateMouth();
 }
 
 function animate() {
@@ -180,4 +195,7 @@ function animate() {
 
 // Ajouter l'événement pour le bouton
 document.getElementById("changeEmotionBtn").addEventListener("click", toggleEmotion);
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("talkButton").addEventListener("click", toggleSpeaking);
+});
 
