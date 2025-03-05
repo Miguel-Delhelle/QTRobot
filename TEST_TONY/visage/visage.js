@@ -144,7 +144,7 @@ drawMouth(canvas.width / 2, 300, isHappy);
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#8888ff";
+    ctx.fillStyle = "lightGray";//"#8888ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
