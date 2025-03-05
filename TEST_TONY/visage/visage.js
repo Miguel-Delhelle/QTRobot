@@ -14,6 +14,11 @@ let speaking = false;
 let mouthHeight = 30;
 let mouthDirection = 1;
 
+// Pour le clignement des yeux
+let blinking = false;
+let eyeHeight = 50; // Hauteur normale des yeux
+let blinkDirection = -5;
+
 function drawEyeLeft(x, y) {
     // Grand cercle noir (œil)
     ctx.beginPath();
@@ -146,7 +151,6 @@ function toggleEmotion() {
 }
 
 // Fonction pour faire parler
-
 function animateMouth() {
     if (!speaking) return;
     
@@ -193,9 +197,93 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-// Ajouter l'événement pour le bouton
+// Fonction clignement des yeux
+function animateBlink() {
+    if (!blinking) return;
+
+    eyeHeight += blinkDirection;
+
+    // Fermer complètement l'œil, puis inverser le mouvement
+    if (eyeHeight <= 5 || eyeHeight >= 50) {
+        blinkDirection *= -1;
+    }
+
+    // Si l'œil est revenu à sa taille normale, arrêter l'animation
+    if (eyeHeight === 50 && blinkDirection === -5) {
+        blinking = false;
+        return;
+    }
+
+    clearCanvas();
+    drawEyeLeft(canvas.width / 100 * 75, 140, eyeHeight);
+    drawEyeRight(canvas.width / 100 * 25, 140, eyeHeight);
+    drawEyebrow(canvas.width / 100 * 75, 60);
+    drawEyebrow(canvas.width / 100 * 25, 60);
+    drawMouth(canvas.width / 2, 300, isHappy);
+
+    requestAnimationFrame(animateBlink);
+}
+
+function startBlinking() {
+    if (!blinking) {
+        blinking = true;
+        eyeHeight = 50;
+        blinkDirection = -5;
+        animateBlink();
+    }
+}
+
+// Adapter les fonctions des yeux pour prendre en compte la hauteur
+function drawEyeLeft(x, y, height = 50) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, 50, height, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "black";
+    ctx.fill();
+    ctx.closePath();
+
+    if (height > 20) { // Afficher les reflets seulement si l'œil n'est pas trop fermé
+        ctx.beginPath();
+        ctx.arc(x - 20, y - 20, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(x - 10, y - 10, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#444488";
+        ctx.fill();
+        ctx.closePath();
+    }
+}
+
+function drawEyeRight(x, y, height = 50) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, 50, height, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "black";
+    ctx.fill();
+    ctx.closePath();
+
+    if (height > 20) {
+        ctx.beginPath();
+        ctx.arc(x + 20, y - 20, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(x + 10, y - 10, 5, 0, Math.PI * 2);
+        ctx.fillStyle = "#444488";
+        ctx.fill();
+        ctx.closePath();
+    }
+}
+
+// Ajouter l'événement pour les boutons
 document.getElementById("changeEmotionBtn").addEventListener("click", toggleEmotion);
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("talkButton").addEventListener("click", toggleSpeaking);
 });
+
+// Lancer un clignement automatique toutes les 3 à 6 secondes
+setInterval(startBlinking, Math.random() * 3000 + 3000);
 
