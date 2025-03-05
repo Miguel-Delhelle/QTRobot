@@ -10,8 +10,9 @@ let blinkDirection = -5;
 let mouthHeight = 30;
 let mouthDirection = 1;
 let tears = [];
-let isHappyAnimation = false; // État pour l'animation "Happy"
-let happyFrame = 0; // Compteur pour l'animation Happy
+let isHappyAnimation = false;
+let happyFrame = 0;
+let bounceOffset = 0; // Décalage pour le saut
 
 // Efface et redessine le fond
 function clearCanvas() {
@@ -22,24 +23,30 @@ function clearCanvas() {
 // Dessine l'œil gauche
 function drawEyeLeft(x, y, height) {
     ctx.beginPath();
-    if (isHappy || isHappyAnimation) {
-        ctx.ellipse(x, y, 50, height, 0, 0, Math.PI * 2);
+    if (isHappyAnimation) {
+        // Yeux en arc pour Happy
+        ctx.moveTo(x - 50, y + 20 + bounceOffset);
+        ctx.quadraticCurveTo(x, y - 20 + bounceOffset, x + 50, y + 20 + bounceOffset);
+        ctx.fillStyle = "black";
+        ctx.fill();
+    } else if (isHappy) {
+        ctx.ellipse(x, y + bounceOffset, 50, height, 0, 0, Math.PI * 2);
         ctx.fillStyle = "black";
         ctx.fill();
         if (height > 20) {
             ctx.beginPath();
-            ctx.arc(x - 20, y - 20, 10, 0, Math.PI * 2);
+            ctx.arc(x - 20, y - 20 + bounceOffset, 10, 0, Math.PI * 2);
             ctx.fillStyle = "white";
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(x - 10, y - 10, 5, 0, Math.PI * 2);
+            ctx.arc(x - 10, y - 10 + bounceOffset, 5, 0, Math.PI * 2);
             ctx.fillStyle = "#444488";
             ctx.fill();
         }
     } else {
-        ctx.moveTo(x - 50, y + 10);
-        ctx.bezierCurveTo(x - 17, y - 30, x + 17, y - 30, x + 50, y + 10);
-        ctx.bezierCurveTo(x + 17, y - 10, x - 17, y - 10, x - 50, y + 10);
+        ctx.moveTo(x - 50, y + 10 + bounceOffset);
+        ctx.bezierCurveTo(x - 17, y - 30 + bounceOffset, x + 17, y - 30 + bounceOffset, x + 50, y + 10 + bounceOffset);
+        ctx.bezierCurveTo(x + 17, y - 10 + bounceOffset, x - 17, y - 10 + bounceOffset, x - 50, y + 10 + bounceOffset);
         ctx.fillStyle = "black";
         ctx.fill();
     }
@@ -49,24 +56,30 @@ function drawEyeLeft(x, y, height) {
 // Dessine l'œil droit
 function drawEyeRight(x, y, height) {
     ctx.beginPath();
-    if (isHappy || isHappyAnimation) {
-        ctx.ellipse(x, y, 50, height, 0, 0, Math.PI * 2);
+    if (isHappyAnimation) {
+        // Yeux en arc pour Happy
+        ctx.moveTo(x - 50, y + 20 + bounceOffset);
+        ctx.quadraticCurveTo(x, y - 20 + bounceOffset, x + 50, y + 20 + bounceOffset);
+        ctx.fillStyle = "black";
+        ctx.fill();
+    } else if (isHappy) {
+        ctx.ellipse(x, y + bounceOffset, 50, height, 0, 0, Math.PI * 2);
         ctx.fillStyle = "black";
         ctx.fill();
         if (height > 20) {
             ctx.beginPath();
-            ctx.arc(x + 20, y - 20, 10, 0, Math.PI * 2);
+            ctx.arc(x + 20, y - 20 + bounceOffset, 10, 0, Math.PI * 2);
             ctx.fillStyle = "white";
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(x + 10, y - 10, 5, 0, Math.PI * 2);
+            ctx.arc(x + 10, y - 10 + bounceOffset, 5, 0, Math.PI * 2);
             ctx.fillStyle = "#444488";
             ctx.fill();
         }
     } else {
-        ctx.moveTo(x - 50, y + 10);
-        ctx.bezierCurveTo(x - 17, y - 30, x + 17, y - 30, x + 50, y + 10);
-        ctx.bezierCurveTo(x + 17, y - 10, x - 17, y - 10, x - 50, y + 10);
+        ctx.moveTo(x - 50, y + 10 + bounceOffset);
+        ctx.bezierCurveTo(x - 17, y - 30 + bounceOffset, x + 17, y - 30 + bounceOffset, x + 50, y + 10 + bounceOffset);
+        ctx.bezierCurveTo(x + 17, y - 10 + bounceOffset, x - 17, y - 10 + bounceOffset, x - 50, y + 10 + bounceOffset);
         ctx.fillStyle = "black";
         ctx.fill();
     }
@@ -80,28 +93,26 @@ function drawEyebrow(x, y, isLeft) {
     ctx.strokeStyle = "lightGray";
     if (isLeft) {
         if (isHappyAnimation) {
-            // Animation Happy : sourcil qui ondule
-            let offset = Math.sin(happyFrame * 0.2) * 10;
-            ctx.moveTo(x - 50, y + 20);
-            ctx.quadraticCurveTo(x, y - 20 + offset, x + 50, y + 10);
+            // Sourcils relevés et inclinés pour Happy
+            ctx.moveTo(x - 50, y + 10 + bounceOffset);
+            ctx.quadraticCurveTo(x, y - 30 + bounceOffset, x + 50, y - 10 + bounceOffset);
         } else if (isHappy) {
-            ctx.moveTo(x - 50, y + 20);
-            ctx.quadraticCurveTo(x, y - 20, x + 50, y + 10);
+            ctx.moveTo(x - 50, y + 20 + bounceOffset);
+            ctx.quadraticCurveTo(x, y - 20 + bounceOffset, x + 50, y + 10 + bounceOffset);
         } else {
-            ctx.moveTo(x - 50, y - 10);
-            ctx.quadraticCurveTo(x, y + 20, x + 50, y + 30);
+            ctx.moveTo(x - 50, y - 10 + bounceOffset);
+            ctx.quadraticCurveTo(x, y + 20 + bounceOffset, x + 50, y + 30 + bounceOffset);
         }
     } else {
         if (isHappyAnimation) {
-            let offset = Math.sin(happyFrame * 0.2) * 10;
-            ctx.moveTo(x + 50, y + 20);
-            ctx.quadraticCurveTo(x, y - 20 + offset, x - 50, y + 10);
+            ctx.moveTo(x + 50, y + 10 + bounceOffset);
+            ctx.quadraticCurveTo(x, y - 30 + bounceOffset, x - 50, y - 10 + bounceOffset);
         } else if (isHappy) {
-            ctx.moveTo(x + 50, y + 20);
-            ctx.quadraticCurveTo(x, y - 20, x - 50, y + 10);
+            ctx.moveTo(x + 50, y + 20 + bounceOffset);
+            ctx.quadraticCurveTo(x, y - 20 + bounceOffset, x - 50, y + 10 + bounceOffset);
         } else {
-            ctx.moveTo(x + 50, y - 10);
-            ctx.quadraticCurveTo(x, y + 20, x - 50, y + 30);
+            ctx.moveTo(x + 50, y - 10 + bounceOffset);
+            ctx.quadraticCurveTo(x, y + 20 + bounceOffset, x - 50, y + 30 + bounceOffset);
         }
     }
     ctx.stroke();
@@ -111,25 +122,39 @@ function drawEyebrow(x, y, isLeft) {
 // Dessine la bouche
 function drawMouth(x, y, isHappy, height) {
     ctx.beginPath();
-    ctx.moveTo(x - 50, y - 20);
-    ctx.quadraticCurveTo(x - 20, y - 20, x, y - 20);
-    ctx.quadraticCurveTo(x + 20, y - 20, x + 50, y - 20);
-    ctx.quadraticCurveTo(x + 60, y - 20, x + 60, y - 10);
     if (isHappyAnimation) {
-        // Grand sourire rebondissant
-        let bounce = Math.sin(happyFrame * 0.3) * 10;
-        ctx.quadraticCurveTo(x + 55, y + height + bounce, x, y + height + bounce);
-        ctx.quadraticCurveTo(x - 50, y + height + bounce, x - 60, y - 10);
-    } else if (isHappy) {
-        ctx.quadraticCurveTo(x + 55, y + height, x, y + height);
-        ctx.quadraticCurveTo(x - 50, y + height, x - 60, y - 10);
+        // Grand sourire en U avec langue
+        ctx.moveTo(x - 70, y + bounceOffset);
+        ctx.quadraticCurveTo(x, y + 60 + bounceOffset, x + 70, y + bounceOffset);
+        ctx.lineTo(x + 60, y - 10 + bounceOffset);
+        ctx.quadraticCurveTo(x, y + 40 + bounceOffset, x - 60, y - 10 + bounceOffset);
+        ctx.fillStyle = "#2D1B3C";
+        ctx.fill();
+
+        // Langue (apparaît brièvement)
+        if (happyFrame % 40 < 20) {
+            ctx.beginPath();
+            ctx.moveTo(x - 20, y + 20 + bounceOffset);
+            ctx.quadraticCurveTo(x, y + 50 + bounceOffset, x + 20, y + 20 + bounceOffset);
+            ctx.fillStyle = "#FF69B4"; // Rose pour la langue
+            ctx.fill();
+        }
     } else {
-        ctx.quadraticCurveTo(x + 55, y - 20, x, y - 20);
-        ctx.quadraticCurveTo(x - 50, y - 20, x - 60, y - 10);
+        ctx.moveTo(x - 50, y - 20 + bounceOffset);
+        ctx.quadraticCurveTo(x - 20, y - 20 + bounceOffset, x, y - 20 + bounceOffset);
+        ctx.quadraticCurveTo(x + 20, y - 20 + bounceOffset, x + 50, y - 20 + bounceOffset);
+        ctx.quadraticCurveTo(x + 60, y - 20 + bounceOffset, x + 60, y - 10 + bounceOffset);
+        if (isHappy) {
+            ctx.quadraticCurveTo(x + 55, y + height + bounceOffset, x, y + height + bounceOffset);
+            ctx.quadraticCurveTo(x - 50, y + height + bounceOffset, x - 60, y - 10 + bounceOffset);
+        } else {
+            ctx.quadraticCurveTo(x + 55, y - 20 + bounceOffset, x, y - 20 + bounceOffset);
+            ctx.quadraticCurveTo(x - 50, y - 20 + bounceOffset, x - 60, y - 10 + bounceOffset);
+        }
+        ctx.quadraticCurveTo(x - 60, y - 20 + bounceOffset, x - 50, y - 20 + bounceOffset);
+        ctx.fillStyle = "#2D1B3C";
+        ctx.fill();
     }
-    ctx.quadraticCurveTo(x - 60, y - 20, x - 50, y - 20);
-    ctx.fillStyle = "#2D1B3C";
-    ctx.fill();
     ctx.closePath();
 }
 
@@ -151,22 +176,18 @@ function drawTear(x, y) {
     ctx.stroke();
 }
 
-// Dessine une étoile (pour l'animation Happy)
-function drawStar(x, y, size) {
+// Dessine des lignes d'énergie (pour Happy)
+function drawEnergyLines(x, y) {
     ctx.beginPath();
-    for (let i = 0; i < 5; i++) {
-        let angle = (Math.PI * 2 / 5) * i - Math.PI / 2;
-        let outerX = x + Math.cos(angle) * size;
-        let outerY = y + Math.sin(angle) * size;
-        let innerX = x + Math.cos(angle + Math.PI / 5) * (size / 2);
-        let innerY = y + Math.sin(angle + Math.PI / 5) * (size / 2);
-        if (i === 0) ctx.moveTo(outerX, outerY);
-        else ctx.lineTo(outerX, outerY);
-        ctx.lineTo(innerX, innerY);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#FFD700"; // Jaune doré
+    for (let i = 0; i < 4; i++) {
+        let angle = (Math.PI / 2) * i;
+        let offset = Math.sin(happyFrame * 0.2) * 10;
+        ctx.moveTo(x + Math.cos(angle) * 60, y + Math.sin(angle) * 60 + bounceOffset);
+        ctx.lineTo(x + Math.cos(angle) * (70 + offset), y + Math.sin(angle) * (70 + offset) + bounceOffset);
     }
-    ctx.closePath();
-    ctx.fillStyle = "yellow";
-    ctx.fill();
+    ctx.stroke();
 }
 
 // Gestion des larmes
@@ -199,20 +220,20 @@ function updateTears() {
 function updateHappyAnimation() {
     if (isHappyAnimation) {
         happyFrame++;
-        // Yeux qui s'agrandissent et clignent
-        if (happyFrame % 20 < 10) eyeHeight = 60; // Agrandir
-        else eyeHeight = 40; // Rétrécir (simule un clignement rapide)
+        // Mouvement de saut
+        bounceOffset = Math.sin(happyFrame * 0.3) * 20; // Saut de 20px max
 
-        // Arrêter l'animation après 2 secondes (120 frames à 60 FPS)
+        // Arrêter l'animation après 2 secondes (120 frames)
         if (happyFrame > 120) {
             isHappyAnimation = false;
             happyFrame = 0;
+            bounceOffset = 0;
             eyeHeight = 50;
         }
 
-        // Dessiner des étoiles autour du visage
-        drawStar(canvas.width / 100 * 75 - 60, 100, 15 + Math.sin(happyFrame * 0.2) * 5);
-        drawStar(canvas.width / 100 * 25 + 60, 100, 15 + Math.sin(happyFrame * 0.2 + 1) * 5);
+        // Ajouter des lignes d'énergie
+        drawEnergyLines(canvas.width / 100 * 75, 140);
+        drawEnergyLines(canvas.width / 100 * 25, 140);
     }
 }
 
@@ -273,7 +294,7 @@ function triggerHappyAnimation() {
     if (!isHappyAnimation) {
         isHappyAnimation = true;
         happyFrame = 0;
-        isHappy = true; // Forcer l'état joyeux pendant l'animation
+        isHappy = true; // Forcer l'état joyeux
         tears = []; // Supprimer les larmes
     }
 }
@@ -287,4 +308,3 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Clignement automatique toutes les 3 à 6 secondes
 setInterval(startBlinking, Math.random() * 3000 + 3000);
-
