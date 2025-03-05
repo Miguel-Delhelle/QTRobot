@@ -2,7 +2,7 @@ const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
 // Fond violet
-ctx.fillStyle = "lightGray";//"#8888ff";
+ctx.fillStyle = "white";//"#8888ff";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 // Détermine l'état de l'émotion (sourire ou tristesse)
@@ -97,13 +97,24 @@ function drawEyeRight(x, y) {
     }
 }
 
-function drawEyebrow(x, y) {
+function drawEyebrow(x, y, isLeft) {
     ctx.beginPath();
-    ctx.ellipse(x, y, 60, 10, 0, 0, Math.PI * 2);
-    ctx.fillStyle = "#444488";
+    
+    if (isLeft) {
+        ctx.moveTo(x - 40, y + 10);
+        ctx.bezierCurveTo(x - 25, y - 15, x + 25, y - 15, x + 40, y + 10);
+        ctx.bezierCurveTo(x + 25, y + 20, x - 25, y + 20, x - 40, y + 10);
+    } else {
+        ctx.moveTo(x + 40, y + 10);
+        ctx.bezierCurveTo(x + 25, y - 15, x - 25, y - 15, x - 40, y + 10);
+        ctx.bezierCurveTo(x - 25, y + 20, x + 25, y + 20, x + 40, y + 10);
+    }
+
+    ctx.fillStyle = "lightGray";
     ctx.fill();
     ctx.closePath();
 }
+
 
 function drawMouth(x, y, isHappy, height = 30) {
     ctx.beginPath();
@@ -131,15 +142,19 @@ drawEyeLeft(canvas.width / 100 * 75, 140);
 drawEyeRight(canvas.width / 100 * 25, 140);
 
 // Dessiner les sourcils
-drawEyebrow(canvas.width / 100 * 75, 60);
-drawEyebrow(canvas.width / 100 * 25, 60);
+//drawEyebrow(canvas.width / 100 * 75, 60);
+//drawEyebrow(canvas.width / 100 * 25, 60);
+drawEyebrow(canvas.width / 100 * 75, 50, true);  // Sourcil gauche
+drawEyebrow(canvas.width / 100 * 25, 50, false); // Sourcil droit
+
+
 
 // Dessiner la bouche (initiale avec sourire)
 drawMouth(canvas.width / 2, 300, isHappy);
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "lightGray";//"#8888ff";
+    ctx.fillStyle = "white";//"#8888ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
