@@ -2,7 +2,7 @@ const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
 // Fond violet
-ctx.fillStyle = "#8888ff";
+ctx.fillStyle = "lightGray";//"#8888ff";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 // Détermine l'état de l'émotion (sourire ou tristesse)
