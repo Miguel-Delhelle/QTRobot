@@ -287,3 +287,4 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // Clignement automatique toutes les 3 à 6 secondes
 setInterval(startBlinking, Math.random() * 3000 + 3000);
+
