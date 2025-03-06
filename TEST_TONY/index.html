@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Voice Game</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Ajout de la police Roboto via Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -16,8 +18,8 @@
         <p id="highScore">Meilleur score : 0</p>
     </div>
 
-    <audio id="correctSound" src="correct.mp3"></audio>
-    <audio id="wrongSound" src="wrong.mp3"></audio>
+    <audio id="correctSound" src="correct.mp3" preload="auto"></audio>
+    <audio id="wrongSound" src="wrong.mp3" preload="auto"></audio>
 
     <script src="script.js"></script>
 </body>
