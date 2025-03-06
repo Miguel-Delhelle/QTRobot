@@ -1,0 +1,25 @@
+Pour connecter le classement à une BDD
+À la fin du jeu : Dans endGame, tu peux ajouter une requête (ex. : via fetch) pour envoyer login et score à un serveur :
+javascript
+
+fetch('URL_DE_TON_API', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ login: login, score: score })
+});
+
+Pour afficher le Top 10 : Dans DOMContentLoaded, récupère les données :
+javascript
+
+fetch('URL_DE_TON_API')
+    .then(response => response.json())
+    .then(data => {
+        const leaderboardList = document.getElementById("leaderboard-list");
+        leaderboardList.innerHTML = "";
+        data.slice(0, 10).forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.textContent = `${index + 1}. ${entry.login} - ${entry.score}`;
+            leaderboardList.appendChild(li);
+        });
+    });
+

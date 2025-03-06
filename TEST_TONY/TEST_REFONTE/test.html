@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #acb6e5); /* Dégradé moderne */
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
             color: #333;
             text-align: center;
             margin: 0;
@@ -19,20 +19,31 @@
             align-items: center;
         }
 
-        .container {
+        .home-wrapper {
+            display: flex;
             width: 90%;
-            max-width: 700px; /* Légèrement plus large */
+            max-width: 1000px; /* Plus large pour accueillir les deux colonnes */
+            gap: 30px; /* Espacement entre les colonnes */
+        }
+
+        .container {
             padding: 40px;
-            background-color: rgba(255, 255, 255, 0.95); /* Légère transparence */
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        #home {
+            flex: 2; /* Prend plus de place */
+            width: 60%;
+            max-width: 600px;
         }
 
         h1 {
             font-size: 3rem;
             color: #4CAF50;
             margin: 0 0 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Ombre légère */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         p {
@@ -81,7 +92,7 @@
         #start-game {
             background-color: #FF9800;
             display: none;
-            padding: 20px 40px; /* Plus grand pour se démarquer */
+            padding: 20px 40px;
             font-size: 1.5rem;
             margin: 0px auto;
         }
@@ -108,17 +119,22 @@
         }
 
         #leaderboard {
-            margin-top: 20px;
+            flex: 1; /* Moins de place que la section principale */
+            width: 30%;
+            max-width: 300px;
             padding: 20px;
             background-color: #f9f9f9;
             border-radius: 10px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            text-align: left; /* Alignement à gauche pour lisibilité */
+            height: fit-content; /* S’adapte au contenu */
         }
 
         #leaderboard h2 {
             font-size: 1.8rem;
             color: #FF9800;
             margin: 0 0 15px;
+            text-align: center;
         }
 
         #leaderboard-list {
@@ -212,25 +228,27 @@
     </style>
 </head>
 <body>
-    <div class="container" id="home">
-        <h1>Math Voice Game</h1>
-        <p>Entrez votre pseudo :</p>
-        <input type="text" id="login-input" placeholder="Votre pseudo" maxlength="20">
-        <p>Choisissez votre niveau de difficulté :</p>
-        <div class="difficulty-buttons">
-            <button class="difficulty-btn" data-level="facile">Facile</button>
-            <button class="difficulty-btn" data-level="moyen">Moyen</button>
-            <button class="difficulty-btn" data-level="difficile">Difficile</button>
+    <div class="home-wrapper">
+        <div class="container" id="home">
+            <h1>Math Voice Game</h1>
+            <p>Entrez votre pseudo :</p>
+            <input type="text" id="login-input" placeholder="Votre pseudo" maxlength="20">
+            <p>Choisissez votre niveau de difficulté :</p>
+            <div class="difficulty-buttons">
+                <button class="difficulty-btn" data-level="facile">Facile</button>
+                <button class="difficulty-btn" data-level="moyen">Moyen</button>
+                <button class="difficulty-btn" data-level="difficile">Difficile</button>
+            </div>
+            <p>Choisissez le nombre de questions :</p>
+            <div class="question-count-buttons">
+                <button class="question-count-btn" data-count="5">5</button>
+                <button class="question-count-btn" data-count="10">10</button>
+                <button class="question-count-btn" data-count="15">15</button>
+                <button class="question-count-btn" data-count="20">20</button>
+            </div>
+            <button id="start-game">Confirmer</button>
         </div>
-        <p>Choisissez le nombre de questions :</p>
-        <div class="question-count-buttons">
-            <button class="question-count-btn" data-count="5">5</button>
-            <button class="question-count-btn" data-count="10">10</button>
-            <button class="question-count-btn" data-count="15">15</button>
-            <button class="question-count-btn" data-count="20">20</button>
-        </div>
-        <button id="start-game">Confirmer</button>
-        <div id="leaderboard">
+        <div id="leaderboard" class="container">
             <h2>Classement (Top 10)</h2>
             <ul id="leaderboard-list">
                 <li>À connecter à une base de données...</li>
@@ -310,7 +328,7 @@
             }
 
             startGameBtn.addEventListener("click", () => {
-                homeContainer.style.display = "none";
+                homeContainer.parentElement.style.display = "none"; // Masquer le wrapper entier
                 gameContainer.style.display = "block";
                 startGame(selectedLevel, questionCount, playerLogin);
             });
@@ -488,12 +506,11 @@
                     toggleTextBtn.style.display = "none";
                     textPanel.style.display = "none";
                     recognition.stop();
-                    // Ici, tu pourras ajouter une logique pour envoyer "login" et "score" à une BDD
                 }
 
                 backToHomeBtn.addEventListener("click", () => {
                     gameContainer.style.display = "none";
-                    homeContainer.style.display = "block";
+                    homeContainer.parentElement.style.display = "flex"; // Réafficher le wrapper
                     toggleTextBtn.style.display = "block";
                     toggleTextBtn.style.margin = "20px auto";
                     timerDisplay.style.display = "block";
@@ -511,7 +528,7 @@
                     selectedLevel = null;
                     questionCount = null;
                     playerLogin = null;
-                    loginInput.value = ""; // Réinitialiser le champ login
+                    loginInput.value = "";
                     recognition.stop();
                     clearInterval(countdown);
                     toggleTextBtn.textContent = "Afficher le texte";
