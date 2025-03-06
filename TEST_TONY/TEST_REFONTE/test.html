@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f0f4f8;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5); /* Dégradé moderne */
             color: #333;
             text-align: center;
             margin: 0;
@@ -21,17 +21,24 @@
 
         .container {
             width: 90%;
-            max-width: 600px;
-            padding: 30px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 700px; /* Légèrement plus large */
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.95); /* Légère transparence */
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             color: #4CAF50;
-            margin: 20px 0;
+            margin: 0 0 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Ombre légère */
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            color: #555;
         }
 
         button {
@@ -42,13 +49,15 @@
             font-size: 1.25rem;
             cursor: pointer;
             border-radius: 10px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             margin: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         button:hover {
             background-color: #45a049;
             transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         button:active {
@@ -60,20 +69,67 @@
             justify-content: center;
             gap: 20px;
             flex-wrap: wrap;
+            margin: 20px 0;
         }
 
         .selected {
             background-color: #2196F3;
             transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         #start-game {
             background-color: #FF9800;
             display: none;
+            padding: 20px 40px; /* Plus grand pour se démarquer */
+            font-size: 1.5rem;
+            margin: 0px auto;
         }
 
         #start-game:hover {
             background-color: #F57C00;
+        }
+
+        #login-input {
+            padding: 12px;
+            font-size: 1.1rem;
+            width: 80%;
+            max-width: 300px;
+            margin: 20px auto;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            display: block;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #login-input:focus {
+            border-color: #2196F3;
+        }
+
+        #leaderboard {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        #leaderboard h2 {
+            font-size: 1.8rem;
+            color: #FF9800;
+            margin: 0 0 15px;
+        }
+
+        #leaderboard-list {
+            list-style: none;
+            padding: 0;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        #leaderboard-list li {
+            margin: 10px 0;
         }
 
         .game-container p {
@@ -106,7 +162,7 @@
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.3s ease, transform 0.3s ease;
-            display: none; /* Initialement caché */
+            display: none;
         }
 
         .text-panel.visible {
@@ -126,7 +182,7 @@
             padding: 10px;
             font-size: 1rem;
             transition: background-color 0.5s ease;
-            margin: 0; /* Pas de marge pour les boutons QCM */
+            margin: 0;
         }
 
         .qcm-options button:hover {
@@ -151,13 +207,15 @@
 
         #toggle-text {
             display: block;
-            margin: 20px auto; /* Centrage constant */
+            margin: 20px auto;
         }
     </style>
 </head>
 <body>
     <div class="container" id="home">
         <h1>Math Voice Game</h1>
+        <p>Entrez votre pseudo :</p>
+        <input type="text" id="login-input" placeholder="Votre pseudo" maxlength="20">
         <p>Choisissez votre niveau de difficulté :</p>
         <div class="difficulty-buttons">
             <button class="difficulty-btn" data-level="facile">Facile</button>
@@ -172,6 +230,12 @@
             <button class="question-count-btn" data-count="20">20</button>
         </div>
         <button id="start-game">Confirmer</button>
+        <div id="leaderboard">
+            <h2>Classement (Top 10)</h2>
+            <ul id="leaderboard-list">
+                <li>À connecter à une base de données...</li>
+            </ul>
+        </div>
     </div>
 
     <div class="container game-container" id="game" style="display: none;">
@@ -201,11 +265,12 @@
             const startGameBtn = document.getElementById("start-game");
             const toggleTextBtn = document.getElementById("toggle-text");
             const textPanel = document.getElementById("text-panel");
+            const loginInput = document.getElementById("login-input");
 
             let selectedLevel = null;
             let questionCount = null;
+            let playerLogin = null;
 
-            // Gestion du bouton "Afficher le texte" une seule fois au chargement
             toggleTextBtn.addEventListener("click", () => {
                 const isHidden = textPanel.style.display === "none" || textPanel.style.display === "";
                 textPanel.style.display = isHidden ? "block" : "none";
@@ -231,19 +296,26 @@
                 });
             });
 
+            loginInput.addEventListener("input", () => {
+                playerLogin = loginInput.value.trim();
+                checkReadyToStart();
+            });
+
             function checkReadyToStart() {
-                if (selectedLevel && questionCount) {
+                if (selectedLevel && questionCount && playerLogin) {
                     startGameBtn.style.display = "block";
+                } else {
+                    startGameBtn.style.display = "none";
                 }
             }
 
             startGameBtn.addEventListener("click", () => {
                 homeContainer.style.display = "none";
                 gameContainer.style.display = "block";
-                startGame(selectedLevel, questionCount);
+                startGame(selectedLevel, questionCount, playerLogin);
             });
 
-            function startGame(difficulty, totalQuestions) {
+            function startGame(difficulty, totalQuestions, login) {
                 const message = document.getElementById("message");
                 const timerDisplay = document.getElementById("timer");
                 const scoreDisplay = document.getElementById("score");
@@ -262,12 +334,11 @@
                 let countdown;
                 const TIME_LIMIT = 15;
 
-                // Réinitialisation initiale
                 scoreDisplay.textContent = `Score : ${score}`;
                 highScoreDisplay.textContent = `Meilleur score : ${highScore}`;
                 progressDisplay.textContent = `Question ${currentQuestion}/${totalQuestions}`;
                 toggleTextBtn.style.display = "block";
-                toggleTextBtn.style.margin = "20px auto"; // Centrage garanti
+                toggleTextBtn.style.margin = "20px auto";
                 textPanel.style.display = "none";
                 textPanel.classList.remove("visible");
                 toggleTextBtn.textContent = "Afficher le texte";
@@ -410,25 +481,26 @@
                 }
 
                 function endGame() {
-                    message.textContent = `Jeu terminé ! Score : ${score}/${totalQuestions}`;
-                    speak(`Jeu terminé ! Votre score est de ${score} sur ${totalQuestions}`);
+                    message.textContent = `Jeu terminé, ${login} ! Score : ${score}/${totalQuestions}`;
+                    speak(`Jeu terminé, ${login} ! Votre score est de ${score} sur ${totalQuestions}`);
                     timerDisplay.style.display = "none";
-                    progressDisplay.style.display = "none"; // Masquer la progression
+                    progressDisplay.style.display = "none";
                     toggleTextBtn.style.display = "none";
                     textPanel.style.display = "none";
                     recognition.stop();
+                    // Ici, tu pourras ajouter une logique pour envoyer "login" et "score" à une BDD
                 }
 
                 backToHomeBtn.addEventListener("click", () => {
                     gameContainer.style.display = "none";
                     homeContainer.style.display = "block";
                     toggleTextBtn.style.display = "block";
-                    toggleTextBtn.style.margin = "20px auto"; // Recentrer
+                    toggleTextBtn.style.margin = "20px auto";
                     timerDisplay.style.display = "block";
                     progressDisplay.style.display = "block";
                     textPanel.style.display = "none";
                     textPanel.classList.remove("visible");
-                    qcmOptions.innerHTML = ""; // Réinitialiser les options QCM
+                    qcmOptions.innerHTML = "";
                     startGameBtn.style.display = "none";
                     difficultyButtons.forEach(btn => btn.classList.remove("selected"));
                     questionCountButtons.forEach(btn => btn.classList.remove("selected"));
@@ -438,6 +510,8 @@
                     progressDisplay.textContent = `Question ${currentQuestion}/${totalQuestions}`;
                     selectedLevel = null;
                     questionCount = null;
+                    playerLogin = null;
+                    loginInput.value = ""; // Réinitialiser le champ login
                     recognition.stop();
                     clearInterval(countdown);
                     toggleTextBtn.textContent = "Afficher le texte";
