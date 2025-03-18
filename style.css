@@ -1,6 +1,6 @@
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f0f4f8;
+    background: linear-gradient(135deg, #74ebd5, #acb6e5);
     color: #333;
     text-align: center;
     margin: 0;
@@ -11,10 +11,37 @@ body {
     align-items: center;
 }
 
+.home-wrapper {
+    display: flex;
+    width: 90%;
+    max-width: 1000px;
+    gap: 30px;
+}
+
+.container {
+    padding: 40px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+#home {
+    flex: 2;
+    width: 60%;
+    max-width: 600px;
+}
+
 h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     color: #4CAF50;
-    margin: 20px 0;
+    margin: 0 0 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+p {
+    font-size: 1.2rem;
+    margin: 15px 0;
+    color: #555;
 }
 
 button {
@@ -25,50 +52,208 @@ button {
     font-size: 1.25rem;
     cursor: pointer;
     border-radius: 10px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 button:hover {
     background-color: #45a049;
     transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 button:active {
     transform: scale(0.95);
 }
 
-#message {
+.difficulty-buttons, .question-count-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
     margin: 20px 0;
-    font-size: 1.5rem;
-    font-weight: bold;
-    min-height: 2em; /* Évite les sauts de mise en page */
 }
 
-#score {
-    font-size: 1.25rem;
-    margin: 10px 0;
+.selected {
+    background-color: #2196F3;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+#start-game {
+    background-color: #FF9800;
+    display: none;
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    margin: 0px auto;
+}
+
+#start-game:hover {
+    background-color: #F57C00;
+}
+
+#login-input {
+    padding: 12px;
+    font-size: 1.1rem;
+    width: 80%;
+    max-width: 300px;
+    margin: 20px auto;
+    border: 2px solid #4CAF50;
+    border-radius: 8px;
+    display: block;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+#login-input:focus {
+    border-color: #2196F3;
+}
+
+#leaderboard {
+    flex: 1;
+    width: 30%;
+    max-width: 300px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    text-align: left;
+    height: fit-content;
+}
+
+#leaderboard h2 {
+    font-size: 1.8rem;
+    color: #FF9800;
+    margin: 0 0 15px;
+    text-align: center;
+}
+
+#leaderboard-list {
+    list-style: none;
+    padding: 0;
+    font-size: 1.1rem;
     color: #333;
 }
 
-#highScore {
-    font-size: 1.25rem;
-    color: #FF9800;
-    font-weight: bold;
+#leaderboard-list li {
     margin: 10px 0;
 }
 
-#timer {
-    font-size: 1.5rem;
-    color: #D32F2F;
-    font-weight: bold;
-    margin: 20px 0;
+.game-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Espacement entre éléments */
 }
 
-.container {
+canvas {
+    background-color: white;
+    border-radius: 10px;
+    width: 80vw; /* Réduction de la largeur */
+    height: 60vh; /* Réduction de la hauteur */
+    margin-bottom: 10px; /* Réduction de la marge */
+}
+
+.text-panel {
+    width: 90%;
+    max-width: 600px; /* Réduction pour éviter d'être trop large */
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    display: none;
+    border: 1px solid #4CAF50;
+    margin-bottom: 10px; /* Espace avant les options QCM */
+}
+
+.text-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+    display: block;
+}
+
+.text-panel p {
+    margin: 8px 0;
+    font-size: 1.1rem;
+}
+
+#question-text {
+    font-weight: bold;
+    font-size: 1.25rem;
+    color: #4CAF50;
+}
+
+#message {
+    font-weight: bold;
+    font-size: 1.5rem;
+    min-height: 2em;
+}
+
+#timer {
+    color: #D32F2F;
+    font-weight: bold;
+}
+
+#highScore {
+    color: #FF9800;
+    font-weight: bold;
+}
+
+#toggle-text {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #2196F3;
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+#toggle-text:hover {
+    background-color: #1976D2;
+}
+
+.qcm-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 0; /* Réduction de la marge */
     width: 90%;
     max-width: 600px;
-    padding: 30px;
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.qcm-options button {
+    background-color: #2196F3;
+    padding: 10px;
+    font-size: 1rem;
+    transition: background-color 0.5s ease;
+    margin: 0;
+}
+
+.qcm-options button:hover {
+    background-color: #1976D2;
+}
+
+.qcm-options button.correct {
+    background-color: #4CAF50;
+}
+
+.qcm-options button.wrong {
+    background-color: #D32F2F;
+}
+
+#back-to-home {
+    background-color: #FF5722;
+    margin-top: 10px; /* Réduction de la marge */
+}
+
+#back-to-home:hover {
+    background-color: #E64A19;
 }
