@@ -1,3 +1,41 @@
+Math Voice Game avec Avatar
+
+Description
+Un jeu éducatif interactif qui permet aux joueurs de résoudre des problèmes mathématiques en utilisant la reconnaissance vocale.
+Le jeu inclut un avatar animé qui réagit aux réponses (correctes ou incorrectes) et propose différents niveaux de difficulté ainsi qu’un choix du nombre de questions.
+
+Fonctionnalités
+- Reconnaissance vocale : Répondez aux questions mathématiques en parlant.
+- Avatar animé : Un personnage dessiné sur un canvas qui change d’expression selon les réponses (neutre, content, triste).
+- Choix de difficulté : Niveaux facile, moyen et difficile.
+- Nombre de questions personnalisable : 5, 10, 15 ou 20 questions.
+- Classement : Un leaderboard pour afficher les meilleurs scores (à connecter à une base de données).
+- Effets sonores : Sons pour les réponses correctes et incorrectes.
+
+Prérequis
+- Un navigateur moderne (Safari recommandé pour la reconnaissance vocale).
+- Les fichiers audio correct.mp3 et wrong.mp3 doivent être présents dans le même répertoire que le fichier HTML.
+
+Installation
+- Clonez ou téléchargez ce dépôt.
+- Assurez-vous que les fichiers correct.mp3 et wrong.mp3 sont dans le même dossier que index.html.
+- Ouvrez index.html dans un navigateur compatible (ex. Safari).
+
+Utilisation
+- Entrez votre pseudo dans le champ prévu.
+- Choisissez un niveau de difficulté (facile, moyen, difficile).
+- Sélectionnez le nombre de questions (5, 10, 15 ou 20).
+- Cliquez sur "Confirmer" pour démarrer le jeu.
+- Autorisez l’accès au microphone pour utiliser la reconnaissance vocale.
+- Répondez aux questions en parlant ou en cliquant sur les options QCM.
+
+Technologies utilisées
+- HTML5 : Structure de la page.
+- CSS3 : Styles et animations.
+- JavaScript : Logique du jeu et animations.
+- Canvas API : Dessin de l’avatar animé.
+- Web Speech API : Reconnaissance vocale et synthèse vocale.
+
 A faire :
 - Changer la voix ??
 - Remplacer - et * par moins et fois pour la transcription orale
