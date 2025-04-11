@@ -160,16 +160,32 @@
         }
 
         #avatar {
-            background-color: white;
+            background-color: white; /* Fond blanc par défaut */
             border-radius: 10px;
-            width: 80vw; /* Réduction de la largeur */
-            height: 60vh; /* Réduction de la hauteur */
-            margin-bottom: 10px; /* Réduction de la marge */
+            width: 640px; /* Ratio 16:9 (1024/576) */
+            height: 360px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease; /* Animation fluide pour le changement de taille */
+            object-fit: contain; /* Garde les proportions de l'image */
+        }
+
+        /* Style pour l'avatar en plein écran */
+        #avatar.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            z-index: 1000; /* S'assurer que l'avatar est au-dessus des autres éléments */
+            border-radius: 0;
+            object-fit: contain; /* Garde les proportions en plein écran */
+            background-color: transparent; /* Fond transparent en plein écran */
         }
 
         .text-panel {
             width: 90%;
-            max-width: 600px; /* Réduction pour éviter d'être trop large */
+            max-width: 600px;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 15px;
             border-radius: 15px;
@@ -179,7 +195,7 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
             display: none;
             border: 1px solid #4CAF50;
-            margin-bottom: 10px; /* Espace avant les options QCM */
+            margin-bottom: 10px;
         }
 
         .text-panel.visible {
@@ -215,24 +231,47 @@
             font-weight: bold;
         }
 
-        #toggle-text {
+        #toggle-text, #toggle-fullscreen, #toggle-reduce {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #2196F3;
+            right: 10px; /* Alignés à droite */
             padding: 10px 20px;
             font-size: 1rem;
+            z-index: 1001; /* S'assurer que les boutons sont au-dessus de l'avatar en plein écran */
+        }
+
+        #toggle-text {
+            top: 10px; /* Premier bouton en haut */
+            background-color: #2196F3;
         }
 
         #toggle-text:hover {
             background-color: #1976D2;
         }
 
+        #toggle-fullscreen {
+            top: 60px; /* Deuxième bouton, espacé de 50px (10px + hauteur du bouton + 10px) */
+            background-color: #FF9800;
+        }
+
+        #toggle-fullscreen:hover {
+            background-color: #F57C00;
+        }
+
+        #toggle-reduce {
+            top: 10px; /* Positionné en haut en mode plein écran */
+            background-color: #FF9800;
+            display: none; /* Caché par défaut */
+        }
+
+        #toggle-reduce:hover {
+            background-color: #F57C00;
+        }
+
         .qcm-options {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin-top: 0; /* Réduction de la marge */
+            margin-top: 0;
             width: 90%;
             max-width: 600px;
         }
@@ -259,7 +298,7 @@
 
         #back-to-home {
             background-color: #FF5722;
-            margin-top: 10px; /* Réduction de la marge */
+            margin-top: 10px;
         }
 
         #back-to-home:hover {
@@ -298,6 +337,8 @@
 
     <div class="container game-container" id="game" style="display: none;">
         <img id="avatar" src="GIF_EMOTIONS/QT_QT_neutral_state_blinking.gif" alt="Avatar animé">
+        <button id="toggle-fullscreen" aria-label="Passer l'avatar en plein écran">Plein écran</button>
+        <button id="toggle-reduce" aria-label="Réduire l'avatar">Réduire</button>
         <button id="toggle-text" aria-label="Afficher ou masquer le bandeau textuel">Afficher le texte</button>
         <div id="text-panel" class="text-panel">
             <p id="question-text">Question : Préparez-vous...</p>
@@ -323,17 +364,40 @@
             const startGameBtn = document.getElementById("start-game");
             const loginInput = document.getElementById("login-input");
             const toggleTextBtn = document.getElementById("toggle-text");
+            const toggleFullscreenBtn = document.getElementById("toggle-fullscreen");
+            const toggleReduceBtn = document.getElementById("toggle-reduce");
             const textPanel = document.getElementById("text-panel");
+            const avatar = document.getElementById("avatar");
 
             let selectedLevel = null;
             let questionCount = null;
             let playerLogin = null;
+            let isFullscreen = false;
 
+            // Gestion du bouton "Afficher/Masquer le texte"
             toggleTextBtn.addEventListener("click", () => {
                 const isHidden = textPanel.style.display === "none" || textPanel.style.display === "";
                 textPanel.style.display = isHidden ? "block" : "none";
                 textPanel.classList.toggle("visible", isHidden);
                 toggleTextBtn.textContent = isHidden ? "Masquer le texte" : "Afficher le texte";
+            });
+
+            // Gestion du bouton "Plein écran"
+            toggleFullscreenBtn.addEventListener("click", () => {
+                avatar.classList.add("fullscreen");
+                toggleFullscreenBtn.style.display = "none"; // Cacher "Plein écran"
+                toggleReduceBtn.style.display = "block"; // Afficher "Réduire"
+                toggleTextBtn.style.display = "none"; // Cacher "Afficher le texte"
+                isFullscreen = true;
+            });
+
+            // Gestion du bouton "Réduire"
+            toggleReduceBtn.addEventListener("click", () => {
+                avatar.classList.remove("fullscreen");
+                toggleFullscreenBtn.style.display = "block"; // Afficher "Plein écran"
+                toggleReduceBtn.style.display = "none"; // Cacher "Réduire"
+                toggleTextBtn.style.display = "block"; // Réafficher "Afficher le texte"
+                isFullscreen = false;
             });
 
             difficultyButtons.forEach(button => {
@@ -374,7 +438,6 @@
             });
 
             // Gestion de l'avatar avec des GIF
-            const avatar = document.getElementById("avatar");
             let state = "neutral";
             let neutralToggle = true; // Pour alterner entre les deux GIF neutres
             let idleFrame = 0;
@@ -418,7 +481,7 @@
                 setTimeout(() => {
                     state = "neutral";
                     updateAvatar();
-                }, 2600); // Durée approximative du GIF (ajuste si nécessaire)
+                }, 2600); // Durée approximative du GIF
             }
 
             function setBadAnswer() {
@@ -651,6 +714,12 @@
                     textPanel.style.display = "none";
                     textPanel.classList.remove("visible");
                     toggleTextBtn.textContent = "Afficher le texte";
+                    toggleTextBtn.style.display = "block"; // Réafficher "Afficher le texte"
+                    // Réinitialiser le mode plein écran
+                    avatar.classList.remove("fullscreen");
+                    toggleFullscreenBtn.style.display = "block";
+                    toggleReduceBtn.style.display = "none";
+                    isFullscreen = false;
                 });
 
                 recognition.onresult = (event) => {

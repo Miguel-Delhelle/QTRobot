@@ -151,7 +151,7 @@ button:active {
     gap: 10px; /* Espacement entre éléments */
 }
 
-canvas {
+#avatar {
     background-color: white;
     border-radius: 10px;
     width: 80vw; /* Réduction de la largeur */

@@ -56,345 +56,70 @@ document.addEventListener("DOMContentLoaded", () => {
         startGame(selectedLevel, questionCount, playerLogin);
     });
 
-    // Code de l'avatar
-    const canvas = document.getElementById("myCanvas");
-    const ctx = canvas.getContext("2d");
-
-    // Ajuster la taille du canvas dynamiquement
-    canvas.width = window.innerWidth * 0.80;
-    canvas.height = window.innerHeight * 0.60;
-
+    // Gestion de l'avatar avec des GIF
+    const avatar = document.getElementById("avatar");
     let state = "neutral";
-    let stateFrame = 0;
-    let eyeHeight = 50;
-    let blinkDirection = -5;
-    let blinking = false;
-    let mouthHeight = 30;
-    let mouthDirection = 1;
-    let tears = [];
-    let bounceOffset = 0;
+    let neutralToggle = true; // Pour alterner entre les deux GIF neutres
     let idleFrame = 0;
-    let eyebrowOffset = 0;
-    let reflectOffsetX = 0;
-    let reflectOffsetY = 0;
-    let trembleOffset = 0;
 
-    function clearCanvas() {
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    function drawEyeLeft(x, y, height) {
-        ctx.beginPath();
-        if (state === "good") {
-            ctx.ellipse(x, y + bounceOffset, 60, height + 10, 0, 0, Math.PI * 2);
-            ctx.fillStyle = "black";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(x - 20, y - 20 + bounceOffset, 12, 0, Math.PI * 2);
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(x - 10, y - 10 + bounceOffset, 6, 0, Math.PI * 2);
-            ctx.fillStyle = "#444488";
-            ctx.fill();
+    // Fonction pour mettre à jour l'image de l'avatar en fonction de l'état
+    function updateAvatar() {
+        if (state === "neutral") {
+            avatar.src = "GIF_EMOTIONS/QT_QT_neutral_state_blinking.gif";
+        } else if (state === "good") {
+            avatar.src = "GIF_EMOTIONS/QT_QT_happy.gif";
         } else if (state === "bad") {
-            ctx.moveTo(x - 50 + trembleOffset, y + 10 + bounceOffset);
-            ctx.bezierCurveTo(x - 17 + trembleOffset, y - 30 + bounceOffset, x + 17 + trembleOffset, y - 30 + bounceOffset, x + 50 + trembleOffset, y + 10 + bounceOffset);
-            ctx.bezierCurveTo(x + 17 + trembleOffset, y - 10 + bounceOffset, x - 17 + trembleOffset, y - 10 + bounceOffset, x - 50 + trembleOffset, y + 10 + bounceOffset);
-            ctx.fillStyle = "black";
-            ctx.fill();
-        } else {
-            ctx.ellipse(x, y, 50, height, 0, 0, Math.PI * 2);
-            ctx.fillStyle = "black";
-            ctx.fill();
-            if (height > 20) {
-                ctx.beginPath();
-                ctx.arc(x - 20 + reflectOffsetX, y - 20 + reflectOffsetY, 10, 0, Math.PI * 2);
-                ctx.fillStyle = "white";
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(x - 10 + reflectOffsetX, y - 10 + reflectOffsetY, 5, 0, Math.PI * 2);
-                ctx.fillStyle = "#444488";
-                ctx.fill();
-            }
-        }
-        ctx.closePath();
-    }
-
-    function drawEyeRight(x, y, height) {
-        ctx.beginPath();
-        if (state === "good") {
-            ctx.ellipse(x, y + bounceOffset, 60, height + 10, 0, 0, Math.PI * 2);
-            ctx.fillStyle = "black";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(x + 20, y - 20 + bounceOffset, 12, 0, Math.PI * 2);
-            ctx.fillStyle = "white";
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(x + 10, y - 10 + bounceOffset, 6, 0, Math.PI * 2);
-            ctx.fillStyle = "#444488";
-            ctx.fill();
-        } else if (state === "bad") {
-            ctx.moveTo(x - 50 + trembleOffset, y + 10 + bounceOffset);
-            ctx.bezierCurveTo(x - 17 + trembleOffset, y - 30 + bounceOffset, x + 17 + trembleOffset, y - 30 + bounceOffset, x + 50 + trembleOffset, y + 10 + bounceOffset);
-            ctx.bezierCurveTo(x + 17 + trembleOffset, y - 10 + bounceOffset, x - 17 + trembleOffset, y - 10 + bounceOffset, x - 50 + trembleOffset, y + 10 + bounceOffset);
-            ctx.fillStyle = "black";
-            ctx.fill();
-        } else {
-            ctx.ellipse(x, y, 50, height, 0, 0, Math.PI * 2);
-            ctx.fillStyle = "black";
-            ctx.fill();
-            if (height > 20) {
-                ctx.beginPath();
-                ctx.arc(x + 20 + reflectOffsetX, y - 20 + reflectOffsetY, 10, 0, Math.PI * 2);
-                ctx.fillStyle = "white";
-                ctx.fill();
-                ctx.beginPath();
-                ctx.arc(x + 10 + reflectOffsetX, y - 10 + reflectOffsetY, 5, 0, Math.PI * 2);
-                ctx.fillStyle = "#444488";
-                ctx.fill();
-            }
-        }
-        ctx.closePath();
-    }
-
-    function drawEyebrow(x, y, isLeft) {
-        ctx.beginPath();
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = "lightGray";
-        if (isLeft) {
-            if (state === "good") {
-                ctx.moveTo(x - 50, y + 10 + bounceOffset);
-                ctx.quadraticCurveTo(x, y - 30 + bounceOffset, x + 50, y - 10 + bounceOffset);
-            } else if (state === "bad") {
-                ctx.moveTo(x - 50, y + 10 + trembleOffset);
-                ctx.quadraticCurveTo(x, y - 10 + trembleOffset, x + 50, y + 20 + trembleOffset);
-            } else {
-                ctx.moveTo(x - 50, y + 20 + eyebrowOffset);
-                ctx.quadraticCurveTo(x, y - 20 + eyebrowOffset, x + 50, y + 10 + eyebrowOffset);
-            }
-        } else {
-            if (state === "good") {
-                ctx.moveTo(x + 50, y + 10 + bounceOffset);
-                ctx.quadraticCurveTo(x, y - 30 + bounceOffset, x - 50, y - 10 + bounceOffset);
-            } else if (state === "bad") {
-                ctx.moveTo(x + 50, y + 10 + trembleOffset);
-                ctx.quadraticCurveTo(x, y - 10 + trembleOffset, x - 50, y + 20 + trembleOffset);
-            } else {
-                ctx.moveTo(x + 50, y + 20 - eyebrowOffset);
-                ctx.quadraticCurveTo(x, y - 20 - eyebrowOffset, x - 50, y + 10 - eyebrowOffset);
-            }
-        }
-        ctx.stroke();
-        ctx.closePath();
-    }
-
-    function drawMouth(x, y, height) {
-        ctx.beginPath();
-        if (state === "good") {
-            ctx.moveTo(x - 70, y + bounceOffset);
-            ctx.quadraticCurveTo(x, y + 60 + bounceOffset, x + 70, y + bounceOffset);
-            ctx.lineTo(x + 60, y - 10 + bounceOffset);
-            ctx.quadraticCurveTo(x, y + 40 + bounceOffset, x - 60, y - 10 + bounceOffset);
-            ctx.fillStyle = "#2D1B3C";
-            ctx.fill();
-        } else if (state === "bad") {
-            ctx.moveTo(x - 50, y - 20 + trembleOffset);
-            ctx.quadraticCurveTo(x, y + 20 + trembleOffset, x + 50, y - 20 + trembleOffset);
-            ctx.fillStyle = "#2D1B3C";
-            ctx.fill();
-        } else {
-            ctx.moveTo(x - 50, y - 20);
-            ctx.quadraticCurveTo(x - 20, y - 20, x, y - 20);
-            ctx.quadraticCurveTo(x + 20, y - 20, x + 50, y - 20);
-            ctx.quadraticCurveTo(x + 60, y - 20, x + 60, y - 10);
-            ctx.quadraticCurveTo(x + 55, y + height, x, y + height);
-            ctx.quadraticCurveTo(x - 50, y + height, x - 60, y - 10);
-            ctx.quadraticCurveTo(x - 60, y - 20, x - 50, y - 20);
-            ctx.fillStyle = "#2D1B3C";
-            ctx.fill();
-        }
-        ctx.closePath();
-    }
-
-    function drawTear(x, y, size) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.quadraticCurveTo(x - size / 2, y + size, x, y + size * 2);
-        ctx.quadraticCurveTo(x + size / 2, y + size, x, y);
-        ctx.fillStyle = "#00BFFF";
-        ctx.fill();
-        ctx.closePath();
-
-        ctx.beginPath();
-        ctx.moveTo(x, y - size);
-        ctx.lineTo(x, y);
-        ctx.strokeStyle = "rgba(0, 191, 255, 0.5)";
-        ctx.lineWidth = size / 2;
-        ctx.stroke();
-    }
-
-    function drawSymbol(x, y, type) {
-        ctx.beginPath();
-        ctx.fillStyle = state === "good" ? "#FFD700" : state === "bad" ? "#FF4500" : "#8888ff";
-        ctx.font = "20px Arial";
-        if (type === "plus") ctx.fillText("+", x, y);
-        if (type === "x") ctx.fillText("×", x, y);
-        if (type === "question") ctx.fillText("?", x, y);
-        ctx.closePath();
-    }
-
-    function updateTears() {
-        if (state === "bad") {
-            stateFrame++;
-            if (Math.random() < 0.15) {
-                let size = Math.random() * 10 + 5;
-                tears.push({
-                    x: canvas.width / 100 * 75 + (Math.random() * 60 - 30),
-                    y: 160,
-                    speed: Math.random() * 2 + 1 + size / 10,
-                    size: size
-                });
-                tears.push({
-                    x: canvas.width / 100 * 25 + (Math.random() * 60 - 30),
-                    y: 160,
-                    speed: Math.random() * 2 + 1 + size / 10,
-                    size: size
-                });
-            }
-            trembleOffset = Math.sin(stateFrame * 0.25) * 3;
-        } else {
-            tears = [];
-            trembleOffset = 0;
-        }
-
-        tears = tears.filter(tear => tear.y < canvas.height);
-        tears.forEach(tear => {
-            tear.y += tear.speed;
-            drawTear(tear.x, tear.y, tear.size);
-        });
-    }
-
-    function updateTalkAnimation() {
-        if (state === "talk") {
-            stateFrame++;
-            mouthHeight += mouthDirection * 5;
-            if (mouthHeight > 40 || mouthHeight < 10) mouthDirection *= -1;
-            eyebrowOffset = Math.sin(stateFrame * 0.1) * 5;
-            if (stateFrame > 120) {
-                state = "neutral";
-                stateFrame = 0;
-                mouthHeight = 30;
-                eyebrowOffset = 0;
-            }
+            avatar.src = "GIF_EMOTIONS/QT_QT_cry.gif";
+        } else if (state === "talk") {
+            avatar.src = "GIF_EMOTIONS/QT_QT_talking.gif";
+        } else if (state === "confused") {
+            avatar.src = "GIF_EMOTIONS/QT_QT_confused.gif";
         }
     }
 
-    function updateGoodAnimation() {
-        if (state === "good") {
-            stateFrame++;
-            bounceOffset = Math.sin(stateFrame * 0.3) * 15;
-            if (stateFrame < 60) {
-                drawSymbol(canvas.width / 100 * 75 - 60, 100, "plus");
-                drawSymbol(canvas.width / 100 * 25 + 60, 100, "plus");
-            }
-            if (stateFrame > 120) {
-                state = "neutral";
-                stateFrame = 0;
-                bounceOffset = 0;
-                eyeHeight = 50;
-            }
-        }
-    }
-
-    function updateBadAnimation() {
-        if (state === "bad") {
-            stateFrame++;
-            if (stateFrame < 60) {
-                drawSymbol(canvas.width / 100 * 75 - 60, 100, "x");
-                drawSymbol(canvas.width / 100 * 25 + 60, 100, "x");
-            }
-            if (stateFrame > 120) {
-                state = "neutral";
-                stateFrame = 0;
-                bounceOffset = 0;
-                eyeHeight = 50;
-            }
-        }
-    }
-
-    function updateNeutralAnimation() {
+    // Animation pour l'état neutre (alternance des GIF)
+    function animateNeutral() {
         if (state === "neutral") {
             idleFrame++;
-            reflectOffsetX = Math.sin(idleFrame * 0.05) * 5;
-            reflectOffsetY = Math.cos(idleFrame * 0.07) * 3;
-            if (idleFrame % 120 === 0) {
-                eyebrowOffset = Math.random() * 10 - 5;
-            } else if (idleFrame % 60 === 0) {
-                eyebrowOffset *= 0.5;
-            }
-            mouthHeight = 30 + Math.sin(idleFrame * 0.03) * 2;
-
-            if (blinking) {
-                eyeHeight += blinkDirection;
-                if (eyeHeight <= 5 || eyeHeight >= 50) blinkDirection *= -1;
-                if (eyeHeight === 50 && blinkDirection === -5) blinking = false;
-            }
-
-            if (idleFrame % 30 === 0) {
-                drawSymbol(canvas.width / 2 - 100 + Math.random() * 200, 50 + Math.sin(idleFrame * 0.02) * 20, "question");
-            }
+            updateAvatar();
         }
+        requestAnimationFrame(animateNeutral);
     }
 
-    function startBlinking() {
-        if (!blinking && state === "neutral") {
-            blinking = true;
-            eyeHeight = 50;
-            blinkDirection = -5;
-        }
-    }
+    // Lancer l'animation pour l'état neutre
+    animateNeutral();
 
-    function animate() {
-        clearCanvas();
-        drawEyeLeft(canvas.width / 100 * 75, canvas.height / 3, eyeHeight);
-        drawEyeRight(canvas.width / 100 * 25, canvas.height / 3, eyeHeight);
-        drawEyebrow(canvas.width / 100 * 75, canvas.height / 6, true);
-        drawEyebrow(canvas.width / 100 * 25, canvas.height / 6, false);
-        drawMouth(canvas.width / 2, canvas.height * 0.75, mouthHeight);
-
-        updateTears();
-        updateTalkAnimation();
-        updateGoodAnimation();
-        updateBadAnimation();
-        updateNeutralAnimation();
-
-        requestAnimationFrame(animate);
-    }
-
-    animate();
-    setInterval(startBlinking, Math.random() * 3000 + 3000);
-
+    // Fonctions pour changer l'état de l'avatar
     function setTalk() {
         state = "talk";
-        stateFrame = 0;
-        tears = [];
-        blinking = false;
+        updateAvatar();
     }
 
     function setGoodAnswer() {
         state = "good";
-        stateFrame = 0;
-        tears = [];
-        blinking = false;
+        updateAvatar();
+        setTimeout(() => {
+            state = "neutral";
+            updateAvatar();
+        }, 2600); // Durée approximative du GIF (ajuste si nécessaire)
     }
 
     function setBadAnswer() {
         state = "bad";
-        stateFrame = 0;
-        blinking = false;
+        updateAvatar();
+        setTimeout(() => {
+            state = "neutral";
+            updateAvatar();
+        }, 2600); // Durée approximative du GIF
+    }
+
+    function setConfused() {
+        state = "confused";
+        updateAvatar();
+        setTimeout(() => {
+            state = "neutral";
+            updateAvatar();
+        }, 2600); // Durée approximative du GIF
     }
 
     // Logique du jeu
@@ -421,6 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         highScoreDisplay.textContent = `Meilleur score : ${highScore}`;
         progressDisplay.textContent = `Question ${currentQuestion}/${totalQuestions}`;
         questionText.textContent = "Question : Préparez-vous...";
+        message.textContent = "Préparez-vous...";
         textPanel.style.display = "none";
         textPanel.classList.remove("visible");
         toggleTextBtn.textContent = "Afficher le texte";
@@ -442,7 +168,11 @@ document.addEventListener("DOMContentLoaded", () => {
             utterance.lang = "fr-FR";
             utterance.rate = 1.1;
             utterance.volume = 1.0;
-            utterance.onend = callback;
+            utterance.onend = () => {
+                state = "neutral";
+                updateAvatar();
+                if (callback) callback();
+            };
             speechSynthesis.speak(utterance);
         }
 
@@ -455,7 +185,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (timeLeft <= 0) {
                     clearInterval(countdown);
                     message.textContent = `Temps écoulé ! Réponse : ${correctAnswer}`;
-                    questionText.textContent = `Question : Temps écoulé ! Réponse : ${correctAnswer}`;
                     speak(`Temps écoulé ! La réponse était ${correctAnswer}`);
                     wrongSound.play();
                     setBadAnswer();
@@ -601,6 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
             recognition.stop();
             clearInterval(countdown);
             state = "neutral";
+            updateAvatar();
             textPanel.style.display = "none";
             textPanel.classList.remove("visible");
             toggleTextBtn.textContent = "Afficher le texte";
@@ -615,11 +345,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 checkQCMAnswer(userAnswer);
             } else {
                 message.textContent = "Je n'ai pas compris, répétez.";
-                questionText.textContent = "Question : Je n'ai pas compris, répétez.";
                 speak("Je n'ai pas compris, répétez.", () => {
                     if (currentQuestion <= totalQuestions) recognition.start();
                 });
-                setBadAnswer();
+                setConfused();
             }
         };
 
@@ -628,11 +357,10 @@ document.addEventListener("DOMContentLoaded", () => {
             recognition.stop();
             if (event.error !== "aborted") {
                 message.textContent = `Erreur de reconnaissance : ${event.error}. Réessayez.`;
-                questionText.textContent = `Question : Erreur de reconnaissance : ${event.error}. Réessayez.`;
                 speak("Erreur, réessayez.", () => {
                     if (currentQuestion <= totalQuestions) recognition.start();
                 });
-                setBadAnswer();
+                setConfused();
             }
         };
 
