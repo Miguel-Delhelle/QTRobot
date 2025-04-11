@@ -6,17 +6,53 @@ document.addEventListener("DOMContentLoaded", () => {
     const startGameBtn = document.getElementById("start-game");
     const loginInput = document.getElementById("login-input");
     const toggleTextBtn = document.getElementById("toggle-text");
+    const toggleFullscreenBtn = document.getElementById("toggle-fullscreen");
+    const toggleReduceBtn = document.getElementById("toggle-reduce");
     const textPanel = document.getElementById("text-panel");
+    const avatar = document.getElementById("avatar");
+    const rulesBtn = document.getElementById("rules-btn");
+    const rulesPanel = document.getElementById("rules-panel");
+    const closeRulesBtn = document.getElementById("close-rules");
 
     let selectedLevel = null;
     let questionCount = null;
     let playerLogin = null;
+    let isFullscreen = false;
 
+    // Gestion du bouton "Règles du jeu"
+    rulesBtn.addEventListener("click", () => {
+        rulesPanel.style.display = "block";
+    });
+
+    // Gestion du bouton "Fermer" du panneau des règles
+    closeRulesBtn.addEventListener("click", () => {
+        rulesPanel.style.display = "none";
+    });
+
+    // Gestion du bouton "Afficher/Masquer le texte"
     toggleTextBtn.addEventListener("click", () => {
         const isHidden = textPanel.style.display === "none" || textPanel.style.display === "";
         textPanel.style.display = isHidden ? "block" : "none";
         textPanel.classList.toggle("visible", isHidden);
         toggleTextBtn.textContent = isHidden ? "Masquer le texte" : "Afficher le texte";
+    });
+
+    // Gestion du bouton "Plein écran"
+    toggleFullscreenBtn.addEventListener("click", () => {
+        avatar.classList.add("fullscreen");
+        toggleFullscreenBtn.style.display = "none"; // Cacher "Plein écran"
+        toggleReduceBtn.style.display = "block"; // Afficher "Réduire"
+        toggleTextBtn.style.display = "none"; // Cacher "Afficher le texte"
+        isFullscreen = true;
+    });
+
+    // Gestion du bouton "Réduire"
+    toggleReduceBtn.addEventListener("click", () => {
+        avatar.classList.remove("fullscreen");
+        toggleFullscreenBtn.style.display = "block"; // Afficher "Plein écran"
+        toggleReduceBtn.style.display = "none"; // Cacher "Réduire"
+        toggleTextBtn.style.display = "block"; // Réafficher "Afficher le texte"
+        isFullscreen = false;
     });
 
     difficultyButtons.forEach(button => {
@@ -57,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Gestion de l'avatar avec des GIF
-    const avatar = document.getElementById("avatar");
     let state = "neutral";
     let neutralToggle = true; // Pour alterner entre les deux GIF neutres
     let idleFrame = 0;
@@ -101,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
             state = "neutral";
             updateAvatar();
-        }, 2600); // Durée approximative du GIF (ajuste si nécessaire)
+        }, 2600); // Durée approximative du GIF
     }
 
     function setBadAnswer() {
@@ -250,24 +285,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function generateMathProblem() {
-            let num1, num2, operator;
+            let num1, num2, operator, spokenOperator;
             switch (difficulty) {
                 case "facile":
                     num1 = Math.floor(Math.random() * 10) + 1;
                     num2 = Math.floor(Math.random() * 10) + 1;
                     operator = "+";
+                    spokenOperator = "plus";
                     correctAnswer = num1 + num2;
                     break;
                 case "moyen":
                     num1 = Math.floor(Math.random() * 50) + 1;
                     num2 = Math.floor(Math.random() * 50) + 1;
                     operator = Math.random() > 0.5 ? "+" : "-";
+                    spokenOperator = operator === "+" ? "plus" : "moins";
                     correctAnswer = operator === "+" ? num1 + num2 : Math.max(num1, num2) - Math.min(num1, num2);
                     break;
                 case "difficile":
                     num1 = Math.floor(Math.random() * 100) + 1;
                     num2 = Math.floor(Math.random() * 10) + 1;
                     operator = Math.random() > 0.5 ? "*" : "/";
+                    spokenOperator = operator === "*" ? "multiplié par" : "divisé par";
                     if (operator === "/") {
                         num1 = num2 * (Math.floor(Math.random() * 10) + 1);
                         correctAnswer = num1 / num2;
@@ -277,13 +315,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     break;
             }
 
-            const question = `${num1} ${operator} ${num2}`;
-            message.textContent = `Résolvez : ${question}`;
-            questionText.textContent = `Question : ${question}`;
+            const questionTextDisplay = `${num1} ${operator} ${num2}`; // Pour l'affichage
+            const questionSpoken = `${num1} ${spokenOperator} ${num2}`; // Pour la synthèse vocale
+            message.textContent = `Résolvez : ${questionTextDisplay}`;
+            questionText.textContent = `Question : ${questionTextDisplay}`;
             generateQCMOptions(correctAnswer);
             stopTimer();
             startTimer();
-            speak(`Quel est le résultat de ${question} ?`, () => {
+            speak(`Quel est le résultat de ${questionSpoken} ?`, () => {
                 if (currentQuestion <= totalQuestions) recognition.start();
             });
         }
@@ -334,6 +373,12 @@ document.addEventListener("DOMContentLoaded", () => {
             textPanel.style.display = "none";
             textPanel.classList.remove("visible");
             toggleTextBtn.textContent = "Afficher le texte";
+            toggleTextBtn.style.display = "block"; // Réafficher "Afficher le texte"
+            // Réinitialiser le mode plein écran
+            avatar.classList.remove("fullscreen");
+            toggleFullscreenBtn.style.display = "block";
+            toggleReduceBtn.style.display = "none";
+            isFullscreen = false;
         });
 
         recognition.onresult = (event) => {

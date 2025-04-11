@@ -140,6 +140,61 @@ button:active {
     margin: 10px 0;
 }
 
+/* Styles pour le bouton et le panneau des règles */
+#rules-btn {
+    background-color: #2196F3;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+}
+
+#rules-btn:hover {
+    background-color: #1976D2;
+}
+
+#rules-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none;
+    border: 1px solid #4CAF50;
+}
+
+#rules-panel h2 {
+    font-size: 2rem;
+    color: #4CAF50;
+    margin: 0 0 20px;
+}
+
+#rules-panel ul {
+    text-align: left;
+    padding-left: 20px;
+    margin: 0 0 20px;
+    font-size: 1.1rem;
+    color: #555;
+}
+
+#rules-panel li {
+    margin: 10px 0;
+}
+
+#close-rules {
+    background-color: #FF5722;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+}
+
+#close-rules:hover {
+    background-color: #E64A19;
+}
+
 .game-container {
     position: relative;
     width: 100%;
@@ -152,16 +207,32 @@ button:active {
 }
 
 #avatar {
-    background-color: white;
+    background-color: white; /* Fond blanc par défaut */
     border-radius: 10px;
-    width: 80vw; /* Réduction de la largeur */
-    height: 60vh; /* Réduction de la hauteur */
-    margin-bottom: 10px; /* Réduction de la marge */
+    width: 640px; /* Ratio 16:9 (1024/576) */
+    height: 360px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease; /* Animation fluide pour le changement de taille */
+    object-fit: contain; /* Garde les proportions de l'image */
+}
+
+/* Style pour l'avatar en plein écran */
+#avatar.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    z-index: 1000; /* S'assurer que l'avatar est au-dessus des autres éléments */
+    border-radius: 0;
+    object-fit: contain; /* Garde les proportions en plein écran */
+    background-color: transparent; /* Fond transparent en plein écran */
 }
 
 .text-panel {
     width: 90%;
-    max-width: 600px; /* Réduction pour éviter d'être trop large */
+    max-width: 600px;
     background-color: rgba(255, 255, 255, 0.9);
     padding: 15px;
     border-radius: 15px;
@@ -171,7 +242,7 @@ button:active {
     transition: opacity 0.3s ease, transform 0.3s ease;
     display: none;
     border: 1px solid #4CAF50;
-    margin-bottom: 10px; /* Espace avant les options QCM */
+    margin-bottom: 10px;
 }
 
 .text-panel.visible {
@@ -207,24 +278,47 @@ button:active {
     font-weight: bold;
 }
 
-#toggle-text {
+#toggle-text, #toggle-fullscreen, #toggle-reduce {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #2196F3;
+    right: 10px; /* Alignés à droite */
     padding: 10px 20px;
     font-size: 1rem;
+    z-index: 1001; /* S'assurer que les boutons sont au-dessus de l'avatar en plein écran */
+}
+
+#toggle-text {
+    top: 10px; /* Premier bouton en haut */
+    background-color: #2196F3;
 }
 
 #toggle-text:hover {
     background-color: #1976D2;
 }
 
+#toggle-fullscreen {
+    top: 60px; /* Deuxième bouton, espacé de 50px (10px + hauteur du bouton + 10px) */
+    background-color: #FF9800;
+}
+
+#toggle-fullscreen:hover {
+    background-color: #F57C00;
+}
+
+#toggle-reduce {
+    top: 10px; /* Positionné en haut en mode plein écran */
+    background-color: #FF9800;
+    display: none; /* Caché par défaut */
+}
+
+#toggle-reduce:hover {
+    background-color: #F57C00;
+}
+
 .qcm-options {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    margin-top: 0; /* Réduction de la marge */
+    margin-top: 0;
     width: 90%;
     max-width: 600px;
 }
@@ -251,7 +345,7 @@ button:active {
 
 #back-to-home {
     background-color: #FF5722;
-    margin-top: 10px; /* Réduction de la marge */
+    margin-top: 10px;
 }
 
 #back-to-home:hover {

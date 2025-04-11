@@ -27,6 +27,7 @@
                 <button class="question-count-btn" data-count="15">15</button>
                 <button class="question-count-btn" data-count="20">20</button>
             </div>
+            <button id="rules-btn">Règles du jeu</button>
             <button id="start-game">Confirmer</button>
         </div>
         <div id="leaderboard" class="container">
@@ -37,8 +38,24 @@
         </div>
     </div>
 
+    <!-- Panneau des règles -->
+    <div id="rules-panel">
+        <h2>Règles du jeu</h2>
+        <ul>
+            <li>Répondez aux questions mathématiques en sélectionnant une réponse parmi les options ou en utilisant la reconnaissance vocale.</li>
+            <li>Vous avez 15 secondes par question.</li>
+            <li>Niveau facile : Additions simples (1 à 10).</li>
+            <li>Niveau moyen : Additions et soustractions (1 à 50).</li>
+            <li>Niveau difficile : Multiplications et divisions (jusqu'à 100).</li>
+            <li>Gagnez des points pour chaque bonne réponse et battez votre meilleur score !</li>
+        </ul>
+        <button id="close-rules">Fermer</button>
+    </div>
+
     <div class="container game-container" id="game" style="display: none;">
         <img id="avatar" src="GIF_EMOTIONS/QT_QT_neutral_state_blinking.gif" alt="Avatar animé">
+        <button id="toggle-fullscreen" aria-label="Passer l'avatar en plein écran">Plein écran</button>
+        <button id="toggle-reduce" aria-label="Réduire l'avatar">Réduire</button>
         <button id="toggle-text" aria-label="Afficher ou masquer le bandeau textuel">Afficher le texte</button>
         <div id="text-panel" class="text-panel">
             <p id="question-text">Question : Préparez-vous...</p>

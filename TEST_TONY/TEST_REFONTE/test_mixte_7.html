@@ -148,6 +148,61 @@
             margin: 10px 0;
         }
 
+        /* Styles pour le bouton et le panneau des règles */
+        #rules-btn {
+            background-color: #2196F3;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+        }
+
+        #rules-btn:hover {
+            background-color: #1976D2;
+        }
+
+        #rules-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            border: 1px solid #4CAF50;
+        }
+
+        #rules-panel h2 {
+            font-size: 2rem;
+            color: #4CAF50;
+            margin: 0 0 20px;
+        }
+
+        #rules-panel ul {
+            text-align: left;
+            padding-left: 20px;
+            margin: 0 0 20px;
+            font-size: 1.1rem;
+            color: #555;
+        }
+
+        #rules-panel li {
+            margin: 10px 0;
+        }
+
+        #close-rules {
+            background-color: #FF5722;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+        }
+
+        #close-rules:hover {
+            background-color: #E64A19;
+        }
+
         .game-container {
             position: relative;
             width: 100%;
@@ -325,6 +380,7 @@
                 <button class="question-count-btn" data-count="15">15</button>
                 <button class="question-count-btn" data-count="20">20</button>
             </div>
+            <button id="rules-btn">Règles du jeu</button>
             <button id="start-game">Confirmer</button>
         </div>
         <div id="leaderboard" class="container">
@@ -333,6 +389,20 @@
                 <li>À connecter à une base de données...</li>
             </ul>
         </div>
+    </div>
+
+    <!-- Panneau des règles -->
+    <div id="rules-panel">
+        <h2>Règles du jeu</h2>
+        <ul>
+            <li>Répondez aux questions mathématiques en sélectionnant une réponse parmi les options ou en utilisant la reconnaissance vocale.</li>
+            <li>Vous avez 15 secondes par question.</li>
+            <li>Niveau facile : Additions simples (1 à 10).</li>
+            <li>Niveau moyen : Additions et soustractions (1 à 50).</li>
+            <li>Niveau difficile : Multiplications et divisions (jusqu'à 100).</li>
+            <li>Gagnez des points pour chaque bonne réponse et battez votre meilleur score !</li>
+        </ul>
+        <button id="close-rules">Fermer</button>
     </div>
 
     <div class="container game-container" id="game" style="display: none;">
@@ -368,11 +438,24 @@
             const toggleReduceBtn = document.getElementById("toggle-reduce");
             const textPanel = document.getElementById("text-panel");
             const avatar = document.getElementById("avatar");
+            const rulesBtn = document.getElementById("rules-btn");
+            const rulesPanel = document.getElementById("rules-panel");
+            const closeRulesBtn = document.getElementById("close-rules");
 
             let selectedLevel = null;
             let questionCount = null;
             let playerLogin = null;
             let isFullscreen = false;
+
+            // Gestion du bouton "Règles du jeu"
+            rulesBtn.addEventListener("click", () => {
+                rulesPanel.style.display = "block";
+            });
+
+            // Gestion du bouton "Fermer" du panneau des règles
+            closeRulesBtn.addEventListener("click", () => {
+                rulesPanel.style.display = "none";
+            });
 
             // Gestion du bouton "Afficher/Masquer le texte"
             toggleTextBtn.addEventListener("click", () => {
@@ -630,24 +713,27 @@
                 }
 
                 function generateMathProblem() {
-                    let num1, num2, operator;
+                    let num1, num2, operator, spokenOperator;
                     switch (difficulty) {
                         case "facile":
                             num1 = Math.floor(Math.random() * 10) + 1;
                             num2 = Math.floor(Math.random() * 10) + 1;
                             operator = "+";
+                            spokenOperator = "plus";
                             correctAnswer = num1 + num2;
                             break;
                         case "moyen":
                             num1 = Math.floor(Math.random() * 50) + 1;
                             num2 = Math.floor(Math.random() * 50) + 1;
                             operator = Math.random() > 0.5 ? "+" : "-";
+                            spokenOperator = operator === "+" ? "plus" : "moins";
                             correctAnswer = operator === "+" ? num1 + num2 : Math.max(num1, num2) - Math.min(num1, num2);
                             break;
                         case "difficile":
                             num1 = Math.floor(Math.random() * 100) + 1;
                             num2 = Math.floor(Math.random() * 10) + 1;
                             operator = Math.random() > 0.5 ? "*" : "/";
+                            spokenOperator = operator === "*" ? "multiplié par" : "divisé par";
                             if (operator === "/") {
                                 num1 = num2 * (Math.floor(Math.random() * 10) + 1);
                                 correctAnswer = num1 / num2;
@@ -657,13 +743,14 @@
                             break;
                     }
 
-                    const question = `${num1} ${operator} ${num2}`;
-                    message.textContent = `Résolvez : ${question}`;
-                    questionText.textContent = `Question : ${question}`;
+                    const questionTextDisplay = `${num1} ${operator} ${num2}`; // Pour l'affichage
+                    const questionSpoken = `${num1} ${spokenOperator} ${num2}`; // Pour la synthèse vocale
+                    message.textContent = `Résolvez : ${questionTextDisplay}`;
+                    questionText.textContent = `Question : ${questionTextDisplay}`;
                     generateQCMOptions(correctAnswer);
                     stopTimer();
                     startTimer();
-                    speak(`Quel est le résultat de ${question} ?`, () => {
+                    speak(`Quel est le résultat de ${questionSpoken} ?`, () => {
                         if (currentQuestion <= totalQuestions) recognition.start();
                     });
                 }
