@@ -13,11 +13,47 @@ document.addEventListener("DOMContentLoaded", () => {
     const rulesBtn = document.getElementById("rules-btn");
     const rulesPanel = document.getElementById("rules-panel");
     const closeRulesBtn = document.getElementById("close-rules");
+    const leaderboardList = document.getElementById("leaderboard-list");
 
     let selectedLevel = null;
     let questionCount = null;
     let playerLogin = null;
     let isFullscreen = false;
+
+    // Générer un faux classement
+    function generateFakeLeaderboard() {
+        const names = [
+            "Alex", "Luna", "Max", "Sophie", "Tom", "Emma", "Leo", "Julia", "Sam", "Chloe",
+            "Nico", "Zoe", "Evan", "Lila", "Ryan", "Mila", "Hugo", "Ava", "Theo", "Nina"
+        ];
+
+        // Créer un tableau de 10 joueurs avec des scores aléatoires entre 0 et 20
+        const leaderboardData = [];
+        for (let i = 0; i < 10; i++) {
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomScore = Math.floor(Math.random() * 21); // Scores de 0 à 20
+            leaderboardData.push({ name: randomName, score: randomScore });
+        }
+
+        // Trier par score décroissant
+        leaderboardData.sort((a, b) => b.score - a.score);
+
+        // Peupler la liste
+        leaderboardList.innerHTML = "";
+        leaderboardData.forEach((entry, index) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <span class="position">${index + 1}</span>
+                <span class="avatar">${entry.name.charAt(0)}</span>
+                <span class="name">${entry.name}</span>
+                <span class="score">${entry.score}/20</span>
+            `;
+            leaderboardList.appendChild(li);
+        });
+    }
+
+    // Générer le classement au chargement de la page
+    generateFakeLeaderboard();
 
     // Gestion du bouton "Règles du jeu"
     rulesBtn.addEventListener("click", () => {
@@ -379,6 +415,8 @@ document.addEventListener("DOMContentLoaded", () => {
             toggleFullscreenBtn.style.display = "block";
             toggleReduceBtn.style.display = "none";
             isFullscreen = false;
+            // Régénérer le classement après la fin de la partie
+            generateFakeLeaderboard();
         });
 
         recognition.onresult = (event) => {
