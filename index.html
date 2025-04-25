@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jeu mathématique interactif avec reconnaissance vocale et avatar animé.">
     <title>Math Voice Game avec Avatar</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">    
 </head>
 <body>
-    <div class="home-wrapper">
-        <div class="container" id="home">
+    <main class="home-wrapper">
+        <section class="container" id="home">
             <h1>Math Voice Game</h1>
             <p>Entrez votre pseudo :</p>
-            <input type="text" id="login-input" placeholder="Votre pseudo" maxlength="20">
+            <input type="text" id="login-input" placeholder="Votre pseudo" maxlength="20" pattern="[A-Za-z0-9]+" required aria-describedby="login-error">
+            <p id="login-error" role="alert">Le pseudo ne peut pas être vide et doit contenir uniquement des lettres et des chiffres.</p>
             <p>Choisissez votre niveau de difficulté :</p>
             <div class="difficulty-buttons">
                 <button class="difficulty-btn" data-level="facile">Facile</button>
@@ -27,47 +28,44 @@
                 <button class="question-count-btn" data-count="15">15</button>
                 <button class="question-count-btn" data-count="20">20</button>
             </div>
-            <button id="rules-btn">Règles du jeu</button>
-            <button id="start-game">Confirmer</button>
-        </div>
-        <div id="leaderboard" class="container">
+            <button id="rules-btn" aria-label="Afficher les règles du jeu">Règles du jeu</button>
+            <button id="start-game" aria-label="Démarrer la partie">Confirmer</button>
+        </section>
+        <section id="leaderboard" class="container">
             <h2>Classement (Top 10)</h2>
-            <ul id="leaderboard-list">
-                <!-- La liste sera peuplée dynamiquement -->
-            </ul>
-        </div>
-    </div>
+            <ul id="leaderboard-list" aria-label="Classement des joueurs"></ul>
+        </section>
+    </main>
 
-    <!-- Panneau des règles -->
-    <div id="rules-panel">
-        <h2>Règles du jeu</h2>
+    <div id="rules-panel" role="dialog" aria-labelledby="rules-title">
+        <h2 id="rules-title">Règles du jeu</h2>
         <ul>
-            <li>Répondez aux questions mathématiques en sélectionnant une réponse parmi les options ou en utilisant la reconnaissance vocale.</li>
+            <li>Répondez aux questions mathématiques en sélectionnant une réponse ou en utilisant la reconnaissance vocale.</li>
             <li>Vous avez 15 secondes par question.</li>
             <li>Niveau facile : Additions simples (1 à 10).</li>
             <li>Niveau moyen : Additions et soustractions (1 à 50).</li>
             <li>Niveau difficile : Multiplications et divisions (jusqu'à 100).</li>
             <li>Gagnez des points pour chaque bonne réponse et battez votre meilleur score !</li>
         </ul>
-        <button id="close-rules">Fermer</button>
+        <button id="close-rules" aria-label="Fermer les règles">Fermer</button>
     </div>
 
-    <div class="container game-container" id="game" style="display: none;">
-        <img id="avatar" src="GIF_EMOTIONS/QT_QT_neutral_state_blinking.gif" alt="Avatar animé">
+    <section class="container game-container" id="game">
+        <img id="avatar" src="GIF_EMOTIONS/QT_QT_neutral_state_blinking.gif" alt="Avatar animé du jeu">
         <button id="toggle-fullscreen" aria-label="Passer l'avatar en plein écran">Plein écran</button>
         <button id="toggle-reduce" aria-label="Réduire l'avatar">Réduire</button>
         <button id="toggle-text" aria-label="Afficher ou masquer le bandeau textuel">Afficher le texte</button>
         <div id="text-panel" class="text-panel">
-            <p id="question-text">Question : Préparez-vous...</p>
-            <p id="progress">Question 1/0</p>
+            <p id="question-text" aria-live="polite">Question : Préparez-vous...</p>
+            <p id="progress" aria-live="polite">Question 1/0</p>
             <p id="message" aria-live="polite">Préparez-vous...</p>
             <p id="timer" aria-live="polite">Temps restant : 0s</p>
             <p id="score" role="status">Score : 0</p>
             <p id="highScore" role="status">Meilleur score : 0</p>
         </div>
-        <div id="qcm-options" class="qcm-options"></div>
-        <button id="back-to-home">Retour à l'accueil</button>
-    </div>
+        <div id="qcm-options" class="qcm-options" role="group" aria-label="Options de réponse"></div>
+        <button id="back-to-home" aria-label="Retour à l'accueil">Retour à l'accueil</button>
+    </section>
 
     <audio id="correctSound" src="correct.mp3" preload="auto"></audio>
     <audio id="wrongSound" src="wrong.mp3" preload="auto"></audio>

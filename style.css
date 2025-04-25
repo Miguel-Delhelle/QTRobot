@@ -1,18 +1,24 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     background: linear-gradient(135deg, #74ebd5, #acb6e5);
     color: #333;
     text-align: center;
-    margin: 0;
-    padding: 0;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 1rem;
 }
 
 .home-wrapper {
     display: flex;
+    flex-wrap: wrap;
     width: 90%;
     max-width: 1000px;
     gap: 30px;
@@ -27,7 +33,6 @@ body {
 
 #home {
     flex: 2;
-    width: 60%;
     max-width: 600px;
 }
 
@@ -63,6 +68,11 @@ button:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+button:focus {
+    outline: 2px solid #2196F3;
+    outline-offset: 2px;
+}
+
 button:active {
     transform: scale(0.95);
 }
@@ -86,7 +96,7 @@ button:active {
     display: none;
     padding: 20px 40px;
     font-size: 1.5rem;
-    margin: 0px auto;
+    margin: 0 auto;
 }
 
 #start-game:hover {
@@ -110,10 +120,16 @@ button:active {
     border-color: #2196F3;
 }
 
+#login-error {
+    color: #D32F2F;
+    font-size: 0.9rem;
+    display: none;
+    margin-top: 0.5rem;
+}
+
 #leaderboard {
     flex: 1;
-    width: 30%;
-    max-width: 300px;
+    max-width: 400px;
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 10px;
@@ -138,7 +154,7 @@ button:active {
 
 #leaderboard-list li {
     display: grid;
-    grid-template-columns: 30px 40px 1fr 60px; /* Numéro, icône, nom, score */
+    grid-template-columns: 30px 40px 1fr 60px;
     align-items: center;
     padding: 10px;
     margin: 5px 0;
@@ -153,31 +169,17 @@ button:active {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Style pour les numéros de position */
-#leaderboard-list li .position {
+#leaderboard-list .position {
     font-weight: bold;
     font-size: 1rem;
     text-align: center;
 }
 
-/* Médailles pour les 3 premières places */
-#leaderboard-list li:nth-child(1) .position {
-    color: #FFD700; /* Or */
-    font-size: 1.2rem;
-}
+#leaderboard-list li:nth-child(1) .position { color: #FFD700; font-size: 1.2rem; }
+#leaderboard-list li:nth-child(2) .position { color: #C0C0C0; font-size: 1.2rem; }
+#leaderboard-list li:nth-child(3) .position { color: #CD7F32; font-size: 1.2rem; }
 
-#leaderboard-list li:nth-child(2) .position {
-    color: #C0C0C0; /* Argent */
-    font-size: 1.2rem;
-}
-
-#leaderboard-list li:nth-child(3) .position {
-    color: #CD7F32; /* Bronze */
-    font-size: 1.2rem;
-}
-
-/* Style pour les icônes/avatars */
-#leaderboard-list li .avatar {
+#leaderboard-list .avatar {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -188,20 +190,9 @@ button:active {
     font-size: 1rem;
 }
 
-/* Style pour le nom */
-#leaderboard-list li .name {
-    font-weight: 500;
-    color: #333;
-}
+#leaderboard-list .name { font-weight: 500; color: #333; }
+#leaderboard-list .score { font-weight: bold; color: #4CAF50; text-align: right; }
 
-/* Style pour le score */
-#leaderboard-list li .score {
-    font-weight: bold;
-    color: #4CAF50;
-    text-align: right;
-}
-
-/* Styles pour le bouton et le panneau des règles */
 #rules-btn {
     background-color: #2196F3;
     padding: 10px 20px;
@@ -259,25 +250,24 @@ button:active {
 .game-container {
     position: relative;
     width: 100%;
-    height: 100vh;
-    display: flex;
+    min-height: 100vh;
+    display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px; /* Espacement entre éléments */
+    gap: 10px;
 }
 
 #avatar {
-    background-color: white; /* Fond blanc par défaut */
+    background-color: white;
     border-radius: 10px;
-    width: 640px; /* Ratio 16:9 (1024/576) */
-    height: 360px;
+    width: min(90vw, 640px);
+    height: calc(min(90vw, 640px) * 9 / 16);
     margin-bottom: 10px;
-    transition: all 0.3s ease; /* Animation fluide pour le changement de taille */
-    object-fit: contain; /* Garde les proportions de l'image */
+    transition: all 0.3s ease;
+    object-fit: contain;
 }
 
-/* Style pour l'avatar en plein écran */
 #avatar.fullscreen {
     position: fixed;
     top: 0;
@@ -285,15 +275,14 @@ button:active {
     width: 100vw;
     height: 100vh;
     margin: 0;
-    z-index: 1000; /* S'assurer que l'avatar est au-dessus des autres éléments */
+    z-index: 1000;
     border-radius: 0;
-    object-fit: contain; /* Garde les proportions en plein écran */
-    background-color: transparent; /* Fond transparent en plein écran */
+    object-fit: contain;
+    background-color: transparent;
 }
 
 .text-panel {
-    width: 90%;
-    max-width: 600px;
+    width: min(90%, 600px);
     background-color: rgba(255, 255, 255, 0.9);
     padding: 15px;
     border-radius: 15px;
@@ -340,15 +329,15 @@ button:active {
 }
 
 #toggle-text, #toggle-fullscreen, #toggle-reduce {
-    position: absolute;
-    right: 10px; /* Alignés à droite */
+    position: fixed;
+    right: 10px;
     padding: 10px 20px;
     font-size: 1rem;
-    z-index: 1001; /* S'assurer que les boutons sont au-dessus de l'avatar en plein écran */
+    z-index: 1001;
 }
 
 #toggle-text {
-    top: 10px; /* Premier bouton en haut */
+    top: 10px;
     background-color: #2196F3;
 }
 
@@ -357,7 +346,7 @@ button:active {
 }
 
 #toggle-fullscreen {
-    top: 60px; /* Deuxième bouton, espacé de 50px (10px + hauteur du bouton + 10px) */
+    top: 60px;
     background-color: #FF9800;
 }
 
@@ -366,9 +355,9 @@ button:active {
 }
 
 #toggle-reduce {
-    top: 10px; /* Positionné en haut en mode plein écran */
+    top: 10px;
     background-color: #FF9800;
-    display: none; /* Caché par défaut */
+    display: none;
 }
 
 #toggle-reduce:hover {
@@ -377,19 +366,18 @@ button:active {
 
 .qcm-options {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 10px;
     margin-top: 0;
-    width: 90%;
-    max-width: 600px;
+    width: min(90%, 600px);
 }
 
 .qcm-options button {
     background-color: #2196F3;
     padding: 10px;
     font-size: 1rem;
-    transition: background-color 0.5s ease;
     margin: 0;
+    transition: background-color 0.5s ease;
 }
 
 .qcm-options button:hover {
@@ -411,4 +399,49 @@ button:active {
 
 #back-to-home:hover {
     background-color: #E64A19;
+}
+
+/* Responsivité */
+@media (max-width: 768px) {
+    .home-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #home, #leaderboard {
+        width: 100%;
+        max-width: none;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+
+    .qcm-options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .text-panel {
+        width: 95%;
+    }
+
+    #avatar {
+        width: 100%;
+        height: auto;
+    }
 }

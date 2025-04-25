@@ -1,247 +1,207 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const homeContainer = document.getElementById("home");
-    const gameContainer = document.getElementById("game");
-    const difficultyButtons = document.querySelectorAll(".difficulty-btn");
-    const questionCountButtons = document.querySelectorAll(".question-count-btn");
-    const startGameBtn = document.getElementById("start-game");
-    const loginInput = document.getElementById("login-input");
-    const toggleTextBtn = document.getElementById("toggle-text");
-    const toggleFullscreenBtn = document.getElementById("toggle-fullscreen");
-    const toggleReduceBtn = document.getElementById("toggle-reduce");
-    const textPanel = document.getElementById("text-panel");
-    const avatar = document.getElementById("avatar");
-    const rulesBtn = document.getElementById("rules-btn");
-    const rulesPanel = document.getElementById("rules-panel");
-    const closeRulesBtn = document.getElementById("close-rules");
-    const leaderboardList = document.getElementById("leaderboard-list");
+    // Références DOM
+    const elements = {
+        home: document.getElementById("home"),
+        game: document.getElementById("game"),
+        difficultyButtons: document.querySelectorAll(".difficulty-btn"),
+        questionCountButtons: document.querySelectorAll(".question-count-btn"),
+        startGameBtn: document.getElementById("start-game"),
+        loginInput: document.getElementById("login-input"),
+        loginError: document.getElementById("login-error"),
+        toggleTextBtn: document.getElementById("toggle-text"),
+        toggleFullscreenBtn: document.getElementById("toggle-fullscreen"),
+        toggleReduceBtn: document.getElementById("toggle-reduce"),
+        textPanel: document.getElementById("text-panel"),
+        avatar: document.getElementById("avatar"),
+        rulesBtn: document.getElementById("rules-btn"),
+        rulesPanel: document.getElementById("rules-panel"),
+        closeRulesBtn: document.getElementById("close-rules"),
+        leaderboardList: document.getElementById("leaderboard-list"),
+        message: document.getElementById("message"),
+        timerDisplay: document.getElementById("timer"),
+        scoreDisplay: document.getElementById("score"),
+        highScoreDisplay: document.getElementById("highScore"),
+        progressDisplay: document.getElementById("progress"),
+        questionText: document.getElementById("question-text"),
+        correctSound: document.getElementById("correctSound"),
+        wrongSound: document.getElementById("wrongSound"),
+        qcmOptions: document.getElementById("qcm-options"),
+        backToHomeBtn: document.getElementById("back-to-home")
+    };
 
-    let selectedLevel = null;
-    let questionCount = null;
-    let playerLogin = null;
-    let isFullscreen = false;
+    // État initial
+    let state = {
+        selectedLevel: null,
+        questionCount: null,
+        playerLogin: null,
+        isFullscreen: false,
+        avatarState: "neutral",
+        currentQuestion: 1,
+        score: 0,
+        highScore: parseInt(localStorage.getItem("highScore")) || 0,
+        countdown: null,
+        correctAnswer: 0,
+        totalQuestions: 0
+    };
 
-    // Générer un faux classement
-    function generateFakeLeaderboard() {
-        const names = [
-            "Alex", "Luna", "Max", "Sophie", "Tom", "Emma", "Leo", "Julia", "Sam", "Chloe",
-            "Nico", "Zoe", "Evan", "Lila", "Ryan", "Mila", "Hugo", "Ava", "Theo", "Nina"
-        ];
-
-        // Créer un tableau de 10 joueurs avec des scores aléatoires entre 0 et 20
-        const leaderboardData = [];
-        for (let i = 0; i < 10; i++) {
-            const randomName = names[Math.floor(Math.random() * names.length)];
-            const randomScore = Math.floor(Math.random() * 21); // Scores de 0 à 20
-            leaderboardData.push({ name: randomName, score: randomScore });
+    // Gestion du classement
+    function updateLeaderboard(score = null) {
+        let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+        if (score !== null && state.playerLogin) {
+            leaderboard.push({ name: state.playerLogin, score });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10);
+            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
         }
-
-        // Trier par score décroissant
-        leaderboardData.sort((a, b) => b.score - a.score);
-
-        // Peupler la liste
-        leaderboardList.innerHTML = "";
-        leaderboardData.forEach((entry, index) => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-                <span class="position">${index + 1}</span>
+        elements.leaderboardList.innerHTML = leaderboard.map((entry, i) => `
+            <li>
+                <span class="position">${i + 1}</span>
                 <span class="avatar">${entry.name.charAt(0)}</span>
                 <span class="name">${entry.name}</span>
-                <span class="score">${entry.score}/20</span>
-            `;
-            leaderboardList.appendChild(li);
-        });
+                <span class="score">${entry.score}/${state.totalQuestions || 20}</span>
+            </li>
+        `).join("");
     }
 
-    // Générer le classement au chargement de la page
-    generateFakeLeaderboard();
+    // Générer un classement initial si vide
+    if (!JSON.parse(localStorage.getItem("leaderboard"))) {
+        const fakeNames = ["Alex", "Luna", "Max", "Sophie", "Tom", "Emma", "Leo", "Julia", "Sam", "Chloe"];
+        const fakeLeaderboard = fakeNames.map(name => ({
+            name,
+            score: Math.floor(Math.random() * 21)
+        }));
+        localStorage.setItem("leaderboard", JSON.stringify(fakeLeaderboard));
+    }
+    updateLeaderboard();
 
-    // Gestion du bouton "Règles du jeu"
-    rulesBtn.addEventListener("click", () => {
-        rulesPanel.style.display = "block";
+    // Gestion des règles
+    elements.rulesBtn.addEventListener("click", () => {
+        elements.rulesPanel.style.display = "block";
     });
 
-    // Gestion du bouton "Fermer" du panneau des règles
-    closeRulesBtn.addEventListener("click", () => {
-        rulesPanel.style.display = "none";
+    elements.closeRulesBtn.addEventListener("click", () => {
+        elements.rulesPanel.style.display = "none";
     });
 
-    // Gestion du bouton "Afficher/Masquer le texte"
-    toggleTextBtn.addEventListener("click", () => {
-        const isHidden = textPanel.style.display === "none" || textPanel.style.display === "";
-        textPanel.style.display = isHidden ? "block" : "none";
-        textPanel.classList.toggle("visible", isHidden);
-        toggleTextBtn.textContent = isHidden ? "Masquer le texte" : "Afficher le texte";
+    // Gestion du panneau de texte
+    elements.toggleTextBtn.addEventListener("click", () => {
+        const isHidden = elements.textPanel.style.display === "none";
+        elements.textPanel.style.display = isHidden ? "block" : "none";
+        elements.textPanel.classList.toggle("visible", isHidden);
+        elements.toggleTextBtn.textContent = isHidden ? "Masquer le texte" : "Afficher le texte";
     });
 
-    // Gestion du bouton "Plein écran"
-    toggleFullscreenBtn.addEventListener("click", () => {
-        avatar.classList.add("fullscreen");
-        toggleFullscreenBtn.style.display = "none"; // Cacher "Plein écran"
-        toggleReduceBtn.style.display = "block"; // Afficher "Réduire"
-        toggleTextBtn.style.display = "none"; // Cacher "Afficher le texte"
-        isFullscreen = true;
+    // Gestion du mode plein écran
+    elements.toggleFullscreenBtn.addEventListener("click", () => {
+        elements.avatar.classList.add("fullscreen");
+        elements.toggleFullscreenBtn.style.display = "none";
+        elements.toggleReduceBtn.style.display = "block";
+        elements.toggleTextBtn.style.display = "none";
+        state.isFullscreen = true;
     });
 
-    // Gestion du bouton "Réduire"
-    toggleReduceBtn.addEventListener("click", () => {
-        avatar.classList.remove("fullscreen");
-        toggleFullscreenBtn.style.display = "block"; // Afficher "Plein écran"
-        toggleReduceBtn.style.display = "none"; // Cacher "Réduire"
-        toggleTextBtn.style.display = "block"; // Réafficher "Afficher le texte"
-        isFullscreen = false;
+    elements.toggleReduceBtn.addEventListener("click", () => {
+        elements.avatar.classList.remove("fullscreen");
+        elements.toggleFullscreenBtn.style.display = "block";
+        elements.toggleReduceBtn.style.display = "none";
+        elements.toggleTextBtn.style.display = "block";
+        state.isFullscreen = false;
     });
 
-    difficultyButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            difficultyButtons.forEach(btn => btn.classList.remove("selected"));
-            button.classList.add("selected");
-            selectedLevel = button.dataset.level;
+    // Sélection des options
+    elements.difficultyButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            elements.difficultyButtons.forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            state.selectedLevel = btn.dataset.level;
             checkReadyToStart();
         });
     });
 
-    questionCountButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            questionCountButtons.forEach(btn => btn.classList.remove("selected"));
-            button.classList.add("selected");
-            questionCount = parseInt(button.dataset.count);
+    elements.questionCountButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            elements.questionCountButtons.forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            state.questionCount = parseInt(btn.dataset.count);
             checkReadyToStart();
         });
     });
 
-    loginInput.addEventListener("input", () => {
-        playerLogin = loginInput.value.trim();
+    elements.loginInput.addEventListener("input", () => {
+        state.playerLogin = elements.loginInput.value.trim();
+        elements.loginError.style.display = state.playerLogin ? "none" : "block";
         checkReadyToStart();
     });
 
     function checkReadyToStart() {
-        if (selectedLevel && questionCount && playerLogin) {
-            startGameBtn.style.display = "block";
-        } else {
-            startGameBtn.style.display = "none";
+        elements.startGameBtn.style.display = state.selectedLevel && state.questionCount && state.playerLogin ? "block" : "none";
+    }
+
+    // Gestion de l'avatar
+    const avatarStates = {
+        neutral: "GIF_EMOTIONS/QT_QT_neutral_state_blinking.gif",
+        good: "GIF_EMOTIONS/QT_QT_happy.gif",
+        bad: "GIF_EMOTIONS/QT_QT_cry.gif",
+        talk: "GIF_EMOTIONS/QT_QT_talking.gif",
+        confused: "GIF_EMOTIONS/QT_QT_confused.gif"
+    };
+
+    function updateAvatar(newState) {
+        state.avatarState = newState;
+        elements.avatar.src = avatarStates[newState];
+        elements.avatar.alt = `Avatar ${newState}`;
+    }
+
+    function animateAvatar() {
+        if (state.avatarState === "neutral") {
+            updateAvatar("neutral");
         }
+        requestAnimationFrame(animateAvatar);
     }
 
-    startGameBtn.addEventListener("click", () => {
-        homeContainer.parentElement.style.display = "none";
-        gameContainer.style.display = "flex";
-        startGame(selectedLevel, questionCount, playerLogin);
-    });
+    animateAvatar();
 
-    // Gestion de l'avatar avec des GIF
-    let state = "neutral";
-    let neutralToggle = true; // Pour alterner entre les deux GIF neutres
-    let idleFrame = 0;
-
-    // Fonction pour mettre à jour l'image de l'avatar en fonction de l'état
-    function updateAvatar() {
-        if (state === "neutral") {
-            avatar.src = "GIF_EMOTIONS/QT_QT_neutral_state_blinking.gif";
-        } else if (state === "good") {
-            avatar.src = "GIF_EMOTIONS/QT_QT_happy.gif";
-        } else if (state === "bad") {
-            avatar.src = "GIF_EMOTIONS/QT_QT_cry.gif";
-        } else if (state === "talk") {
-            avatar.src = "GIF_EMOTIONS/QT_QT_talking.gif";
-        } else if (state === "confused") {
-            avatar.src = "GIF_EMOTIONS/QT_QT_confused.gif";
-        }
-    }
-
-    // Animation pour l'état neutre (alternance des GIF)
-    function animateNeutral() {
-        if (state === "neutral") {
-            idleFrame++;
-            updateAvatar();
-        }
-        requestAnimationFrame(animateNeutral);
-    }
-
-    // Lancer l'animation pour l'état neutre
-    animateNeutral();
-
-    // Fonctions pour changer l'état de l'avatar
-    function setTalk() {
-        state = "talk";
-        updateAvatar();
-    }
-
-    function setGoodAnswer() {
-        state = "good";
-        updateAvatar();
-        setTimeout(() => {
-            state = "neutral";
-            updateAvatar();
-        }, 2600); // Durée approximative du GIF
-    }
-
-    function setBadAnswer() {
-        state = "bad";
-        updateAvatar();
-        setTimeout(() => {
-            state = "neutral";
-            updateAvatar();
-        }, 2600); // Durée approximative du GIF
-    }
-
-    function setConfused() {
-        state = "confused";
-        updateAvatar();
-        setTimeout(() => {
-            state = "neutral";
-            updateAvatar();
-        }, 2600); // Durée approximative du GIF
+    // Gestion des états temporaires
+    function setTemporaryState(newState, duration = 2600) {
+        updateAvatar(newState);
+        setTimeout(() => updateAvatar("neutral"), duration);
     }
 
     // Logique du jeu
     function startGame(difficulty, totalQuestions, login) {
-        const message = document.getElementById("message");
-        const timerDisplay = document.getElementById("timer");
-        const scoreDisplay = document.getElementById("score");
-        const highScoreDisplay = document.getElementById("highScore");
-        const progressDisplay = document.getElementById("progress");
-        const questionText = document.getElementById("question-text");
-        const correctSound = document.getElementById("correctSound");
-        const wrongSound = document.getElementById("wrongSound");
-        const qcmOptions = document.getElementById("qcm-options");
-        const backToHomeBtn = document.getElementById("back-to-home");
+        state.totalQuestions = totalQuestions;
+        elements.home.parentElement.style.display = "none";
+        elements.game.style.display = "flex";
+        elements.scoreDisplay.textContent = `Score : ${state.score}`;
+        elements.highScoreDisplay.textContent = `Meilleur score : ${state.highScore}`;
+        elements.progressDisplay.textContent = `Question ${state.currentQuestion}/${totalQuestions}`;
+        elements.questionText.textContent = "Question : Préparez-vous...";
+        elements.message.textContent = "Préparez-vous...";
+        elements.textPanel.style.display = "none";
+        elements.textPanel.classList.remove("visible");
+        elements.toggleTextBtn.textContent = "Afficher le texte";
 
-        let correctAnswer = 0;
-        let score = 0;
-        let highScore = parseInt(localStorage.getItem("highScore")) || 0;
-        let currentQuestion = 1;
-        let countdown;
         const TIME_LIMIT = 15;
-
-        scoreDisplay.textContent = `Score : ${score}`;
-        highScoreDisplay.textContent = `Meilleur score : ${highScore}`;
-        progressDisplay.textContent = `Question ${currentQuestion}/${totalQuestions}`;
-        questionText.textContent = "Question : Préparez-vous...";
-        message.textContent = "Préparez-vous...";
-        textPanel.style.display = "none";
-        textPanel.classList.remove("visible");
-        toggleTextBtn.textContent = "Afficher le texte";
-
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
         if (!SpeechRecognition) {
-            message.textContent = "Votre navigateur ne supporte pas la reconnaissance vocale.";
+            elements.message.textContent = "La reconnaissance vocale n'est pas supportée par votre navigateur.";
             return;
         }
 
-        const recognition = new SpeechRecognition();
         recognition.lang = "fr-FR";
         recognition.interimResults = false;
         recognition.continuous = false;
 
         function speak(text, callback) {
-            setTalk();
+            updateAvatar("talk");
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = "fr-FR";
             utterance.rate = 1.1;
             utterance.volume = 1.0;
             utterance.onend = () => {
-                state = "neutral";
-                updateAvatar();
+                updateAvatar("neutral");
                 if (callback) callback();
             };
             speechSynthesis.speak(utterance);
@@ -249,19 +209,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         function startTimer() {
             let timeLeft = TIME_LIMIT;
-            timerDisplay.textContent = `Temps restant : ${timeLeft}s`;
-            countdown = setInterval(() => {
+            elements.timerDisplay.textContent = `Temps restant : ${timeLeft}s`;
+            state.countdown = setInterval(() => {
                 timeLeft--;
-                timerDisplay.textContent = `Temps restant : ${timeLeft}s`;
+                elements.timerDisplay.textContent = `Temps restant : ${timeLeft}s`;
                 if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    message.textContent = `Temps écoulé ! Réponse : ${correctAnswer}`;
-                    speak(`Temps écoulé ! La réponse était ${correctAnswer}`);
-                    wrongSound.play();
-                    setBadAnswer();
-                    qcmOptions.childNodes.forEach(btn => {
-                        if (parseInt(btn.textContent) === correctAnswer) btn.classList.add("correct");
-                    });
+                    clearInterval(state.countdown);
+                    elements.message.textContent = `Temps écoulé ! Réponse : ${state.correctAnswer}`;
+                    speak(`Temps écoulé ! La réponse était ${state.correctAnswer}`);
+                    elements.wrongSound.play();
+                    setTemporaryState("bad");
+                    highlightCorrectAnswer();
                     recognition.stop();
                     setTimeout(nextQuestion, 2000);
                 }
@@ -269,16 +227,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function stopTimer() {
-            clearInterval(countdown);
-            timerDisplay.textContent = `Temps restant : ${TIME_LIMIT}s`;
+            clearInterval(state.countdown);
+            elements.timerDisplay.textContent = `Temps restant : ${TIME_LIMIT}s`;
+        }
+
+        function highlightCorrectAnswer() {
+            elements.qcmOptions.childNodes.forEach(btn => {
+                if (parseInt(btn.textContent) === state.correctAnswer) btn.classList.add("correct");
+            });
         }
 
         function generateQCMOptions(correct) {
-            qcmOptions.innerHTML = "";
+            elements.qcmOptions.innerHTML = "";
             const options = [correct];
             while (options.length < 4) {
-                const randomOffset = Math.floor(Math.random() * 10) + 1;
-                const wrongAnswer = correct + (Math.random() > 0.5 ? randomOffset : -randomOffset);
+                const offset = Math.floor(Math.random() * 10) + 1;
+                const wrongAnswer = correct + (Math.random() > 0.5 ? offset : -offset);
                 if (!options.includes(wrongAnswer) && wrongAnswer >= 0) options.push(wrongAnswer);
             }
             options.sort(() => Math.random() - 0.5);
@@ -286,36 +250,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 const btn = document.createElement("button");
                 btn.textContent = opt;
                 btn.addEventListener("click", () => checkQCMAnswer(opt));
-                qcmOptions.appendChild(btn);
+                elements.qcmOptions.appendChild(btn);
             });
         }
 
         function checkQCMAnswer(userAnswer) {
             stopTimer();
             recognition.stop();
-            qcmOptions.childNodes.forEach(btn => {
-                if (parseInt(btn.textContent) === correctAnswer) btn.classList.add("correct");
+            elements.qcmOptions.childNodes.forEach(btn => {
+                if (parseInt(btn.textContent) === state.correctAnswer) btn.classList.add("correct");
                 else if (parseInt(btn.textContent) === userAnswer) btn.classList.add("wrong");
             });
-            if (userAnswer === correctAnswer) {
-                score++;
-                scoreDisplay.textContent = `Score : ${score}`;
-                message.textContent = "Bravo !";
-                questionText.textContent = `Question : Bravo !`;
-                correctSound.play();
+            if (userAnswer === state.correctAnswer) {
+                state.score++;
+                elements.scoreDisplay.textContent = `Score : ${state.score}`;
+                elements.message.textContent = "Bravo !";
+                elements.questionText.textContent = `Question : Bravo !`;
+                elements.correctSound.play();
                 speak("Bonne réponse !");
-                setGoodAnswer();
-                if (score > highScore) {
-                    highScore = score;
-                    localStorage.setItem("highScore", highScore);
-                    highScoreDisplay.textContent = `Meilleur score : ${highScore}`;
+                setTemporaryState("good");
+                if (state.score > state.highScore) {
+                    state.highScore = state.score;
+                    localStorage.setItem("highScore", state.highScore);
+                    elements.highScoreDisplay.textContent = `Meilleur score : ${state.highScore}`;
                 }
             } else {
-                message.textContent = `Faux ! Réponse : ${correctAnswer}`;
-                questionText.textContent = `Question : Faux ! Réponse : ${correctAnswer}`;
-                wrongSound.play();
-                speak(`Faux ! La réponse était ${correctAnswer}`);
-                setBadAnswer();
+                elements.message.textContent = `Faux ! Réponse : ${state.correctAnswer}`;
+                elements.questionText.textContent = `Question : Faux ! Réponse : ${state.correctAnswer}`;
+                elements.wrongSound.play();
+                speak(`Faux ! La réponse était ${state.correctAnswer}`);
+                setTemporaryState("bad");
             }
             setTimeout(nextQuestion, 2000);
         }
@@ -328,14 +292,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     num2 = Math.floor(Math.random() * 10) + 1;
                     operator = "+";
                     spokenOperator = "plus";
-                    correctAnswer = num1 + num2;
+                    state.correctAnswer = num1 + num2;
                     break;
                 case "moyen":
                     num1 = Math.floor(Math.random() * 50) + 1;
                     num2 = Math.floor(Math.random() * 50) + 1;
                     operator = Math.random() > 0.5 ? "+" : "-";
                     spokenOperator = operator === "+" ? "plus" : "moins";
-                    correctAnswer = operator === "+" ? num1 + num2 : Math.max(num1, num2) - Math.min(num1, num2);
+                    state.correctAnswer = operator === "+" ? num1 + num2 : Math.max(num1, num2) - Math.min(num1, num2);
                     break;
                 case "difficile":
                     num1 = Math.floor(Math.random() * 100) + 1;
@@ -344,29 +308,29 @@ document.addEventListener("DOMContentLoaded", () => {
                     spokenOperator = operator === "*" ? "multiplié par" : "divisé par";
                     if (operator === "/") {
                         num1 = num2 * (Math.floor(Math.random() * 10) + 1);
-                        correctAnswer = num1 / num2;
+                        state.correctAnswer = num1 / num2;
                     } else {
-                        correctAnswer = num1 * num2;
+                        state.correctAnswer = num1 * num2;
                     }
                     break;
             }
 
-            const questionTextDisplay = `${num1} ${operator} ${num2}`; // Pour l'affichage
-            const questionSpoken = `${num1} ${spokenOperator} ${num2}`; // Pour la synthèse vocale
-            message.textContent = `Résolvez : ${questionTextDisplay}`;
-            questionText.textContent = `Question : ${questionTextDisplay}`;
-            generateQCMOptions(correctAnswer);
+            const questionTextDisplay = `${num1} ${operator} ${num2}`;
+            const questionSpoken = `${num1} ${spokenOperator} ${num2}`;
+            elements.message.textContent = `Résolvez : ${questionTextDisplay}`;
+            elements.questionText.textContent = `Question : ${questionTextDisplay}`;
+            generateQCMOptions(state.correctAnswer);
             stopTimer();
             startTimer();
             speak(`Quel est le résultat de ${questionSpoken} ?`, () => {
-                if (currentQuestion <= totalQuestions) recognition.start();
+                if (state.currentQuestion <= totalQuestions) recognition.start();
             });
         }
 
         function nextQuestion() {
-            currentQuestion++;
-            progressDisplay.textContent = `Question ${currentQuestion}/${totalQuestions}`;
-            if (currentQuestion <= totalQuestions) {
+            state.currentQuestion++;
+            elements.progressDisplay.textContent = `Question ${state.currentQuestion}/${totalQuestions}`;
+            if (state.currentQuestion <= totalQuestions) {
                 generateMathProblem();
             } else {
                 endGame();
@@ -374,49 +338,46 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         function endGame() {
-            message.textContent = `Jeu terminé, ${login} ! Score : ${score}/${totalQuestions}`;
-            questionText.textContent = `Question : Jeu terminé ! Score : ${score}/${totalQuestions}`;
-            speak(`Jeu terminé, ${login} ! Votre score est de ${score} sur ${totalQuestions}`);
-            timerDisplay.style.display = "none";
-            progressDisplay.style.display = "none";
-            qcmOptions.innerHTML = "";
+            elements.message.textContent = `Jeu terminé, ${login} ! Score : ${state.score}/${totalQuestions}`;
+            elements.questionText.textContent = `Question : Jeu terminé ! Score : ${state.score}/${totalQuestions}`;
+            speak(`Jeu terminé, ${login} ! Votre score est de ${state.score} sur ${totalQuestions}`);
+            elements.timerDisplay.style.display = "none";
+            elements.progressDisplay.style.display = "none";
+            elements.qcmOptions.innerHTML = "";
             recognition.stop();
+            updateLeaderboard(state.score);
         }
 
-        backToHomeBtn.addEventListener("click", () => {
-            gameContainer.style.display = "none";
-            homeContainer.parentElement.style.display = "flex";
-            timerDisplay.style.display = "block";
-            progressDisplay.style.display = "block";
-            qcmOptions.innerHTML = "";
-            startGameBtn.style.display = "none";
-            difficultyButtons.forEach(btn => btn.classList.remove("selected"));
-            questionCountButtons.forEach(btn => btn.classList.remove("selected"));
-            currentQuestion = 1;
-            score = 0;
-            scoreDisplay.textContent = `Score : ${score}`;
-            progressDisplay.textContent = `Question ${currentQuestion}/${totalQuestions}`;
-            questionText.textContent = "Question : Préparez-vous...";
-            message.textContent = "Préparez-vous...";
-            selectedLevel = null;
-            questionCount = null;
-            playerLogin = null;
-            loginInput.value = "";
+        elements.backToHomeBtn.addEventListener("click", () => {
+            elements.game.style.display = "none";
+            elements.home.parentElement.style.display = "flex";
+            elements.timerDisplay.style.display = "block";
+            elements.progressDisplay.style.display = "block";
+            elements.qcmOptions.innerHTML = "";
+            elements.startGameBtn.style.display = "none";
+            elements.difficultyButtons.forEach(btn => btn.classList.remove("selected"));
+            elements.questionCountButtons.forEach(btn => btn.classList.remove("selected"));
+            state.currentQuestion = 1;
+            state.score = 0;
+            elements.scoreDisplay.textContent = `Score : ${state.score}`;
+            elements.progressDisplay.textContent = `Question ${state.currentQuestion}/${totalQuestions}`;
+            elements.questionText.textContent = "Question : Préparez-vous...";
+            elements.message.textContent = "Préparez-vous...";
+            state.selectedLevel = null;
+            state.questionCount = null;
+            state.playerLogin = null;
+            elements.loginInput.value = "";
             recognition.stop();
-            clearInterval(countdown);
-            state = "neutral";
-            updateAvatar();
-            textPanel.style.display = "none";
-            textPanel.classList.remove("visible");
-            toggleTextBtn.textContent = "Afficher le texte";
-            toggleTextBtn.style.display = "block"; // Réafficher "Afficher le texte"
-            // Réinitialiser le mode plein écran
-            avatar.classList.remove("fullscreen");
-            toggleFullscreenBtn.style.display = "block";
-            toggleReduceBtn.style.display = "none";
-            isFullscreen = false;
-            // Régénérer le classement après la fin de la partie
-            generateFakeLeaderboard();
+            clearInterval(state.countdown);
+            updateAvatar("neutral");
+            elements.textPanel.style.display = "none";
+            elements.textPanel.classList.remove("visible");
+            elements.toggleTextBtn.textContent = "Afficher le texte";
+            elements.toggleTextBtn.style.display = "block";
+            elements.avatar.classList.remove("fullscreen");
+            elements.toggleFullscreenBtn.style.display = "block";
+            elements.toggleReduceBtn.style.display = "none";
+            state.isFullscreen = false;
         });
 
         recognition.onresult = (event) => {
@@ -424,14 +385,14 @@ document.addEventListener("DOMContentLoaded", () => {
             recognition.stop();
             const transcript = event.results[0][0].transcript.trim().toLowerCase();
             const userAnswer = parseInt(transcript);
-            if (!isNaN(userAnswer) && correctAnswer !== 0) {
+            if (!isNaN(userAnswer) && state.correctAnswer !== 0) {
                 checkQCMAnswer(userAnswer);
             } else {
-                message.textContent = "Je n'ai pas compris, répétez.";
+                elements.message.textContent = "Je n'ai pas compris, répétez.";
                 speak("Je n'ai pas compris, répétez.", () => {
-                    if (currentQuestion <= totalQuestions) recognition.start();
+                    if (state.currentQuestion <= totalQuestions) recognition.start();
                 });
-                setConfused();
+                setTemporaryState("confused");
             }
         };
 
@@ -439,14 +400,22 @@ document.addEventListener("DOMContentLoaded", () => {
             stopTimer();
             recognition.stop();
             if (event.error !== "aborted") {
-                message.textContent = `Erreur de reconnaissance : ${event.error}. Réessayez.`;
+                elements.message.textContent = `Erreur de reconnaissance : ${event.error}. Réessayez.`;
                 speak("Erreur, réessayez.", () => {
-                    if (currentQuestion <= totalQuestions) recognition.start();
+                    if (state.currentQuestion <= totalQuestions) recognition.start();
                 });
-                setConfused();
+                setTemporaryState("confused");
             }
         };
 
         generateMathProblem();
     }
+
+    elements.startGameBtn.addEventListener("click", () => {
+        if (!elements.loginInput.validity.valid) {
+            elements.loginError.style.display = "block";
+            return;
+        }
+        startGame(state.selectedLevel, state.questionCount, state.playerLogin);
+    });
 });
