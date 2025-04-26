@@ -46,31 +46,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Gestion du classement
     function updateLeaderboard(score = null) {
-        let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+        let leaderboard = [];
+        
+        // Essayer de charger le classement depuis localStorage
+        try {
+            const stored = localStorage.getItem("leaderboard");
+            if (stored) {
+                leaderboard = JSON.parse(stored);
+                // Vérifier que leaderboard est un tableau valide
+                if (!Array.isArray(leaderboard)) {
+                    leaderboard = [];
+                }
+            }
+        } catch (e) {
+            console.error("Erreur lors du chargement du classement :", e);
+            leaderboard = [];
+        }
+
+        // Ajouter un nouveau score si fourni
         if (score !== null && state.playerLogin) {
             leaderboard.push({ name: state.playerLogin, score });
-            leaderboard.sort((a, b) => b.score - a.score);
-            leaderboard = leaderboard.slice(0, 10);
-            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
         }
+
+        // Trier le classement (du plus grand au plus petit score)
+        leaderboard.sort((a, b) => {
+            // Gérer les cas où score est undefined ou non numérique
+            const scoreA = Number(a.score) || 0;
+            const scoreB = Number(b.score) || 0;
+            return scoreB - scoreA;
+        });
+
+        // Limiter à 10 entrées
+        leaderboard = leaderboard.slice(0, 10);
+
+        // Sauvegarder dans localStorage
+        try {
+            localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+        } catch (e) {
+            console.error("Erreur lors de la sauvegarde du classement :", e);
+        }
+
+        // Afficher le classement
         elements.leaderboardList.innerHTML = leaderboard.map((entry, i) => `
             <li>
                 <span class="position">${i + 1}</span>
-                <span class="avatar">${entry.name.charAt(0)}</span>
-                <span class="name">${entry.name}</span>
-                <span class="score">${entry.score}/${state.totalQuestions || 20}</span>
+                <span class="avatar">${entry.name ? entry.name.charAt(0) : '?'}</span>
+                <span class="name">${entry.name || 'Inconnu'}</span>
+                <span class="score">${entry.score ?? 0}/${state.totalQuestions || 20}</span>
             </li>
         `).join("");
     }
 
     // Générer un classement initial si vide
-    if (!JSON.parse(localStorage.getItem("leaderboard"))) {
-        const fakeNames = ["Alex", "Luna", "Max", "Sophie", "Tom", "Emma", "Leo", "Julia", "Sam", "Chloe"];
-        const fakeLeaderboard = fakeNames.map(name => ({
-            name,
-            score: Math.floor(Math.random() * 21)
-        }));
-        localStorage.setItem("leaderboard", JSON.stringify(fakeLeaderboard));
+    try {
+        if (!localStorage.getItem("leaderboard")) {
+            const fakeNames = ["Alex", "Luna", "Max", "Sophie", "Tom", "Emma", "Leo", "Julia", "Sam", "Chloe"];
+            const fakeLeaderboard = fakeNames.map(name => ({
+                name,
+                score: Math.floor(Math.random() * 21)
+            }));
+            localStorage.setItem("leaderboard", JSON.stringify(fakeLeaderboard));
+        }
+    } catch (e) {
+        console.error("Erreur lors de l'initialisation du classement :", e);
     }
     updateLeaderboard();
 
@@ -215,19 +253,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 elements.timerDisplay.textContent = `Temps restant : ${timeLeft}s`;
                 if (timeLeft <= 0) {
                     clearInterval(state.countdown);
+                    state.countdown = null;
+                    recognition.stop();
                     elements.message.textContent = `Temps écoulé ! Réponse : ${state.correctAnswer}`;
+                    elements.questionText.textContent = `Question : Temps écoulé ! Réponse : ${state.correctAnswer}`;
                     speak(`Temps écoulé ! La réponse était ${state.correctAnswer}`);
                     elements.wrongSound.play();
                     setTemporaryState("bad");
                     highlightCorrectAnswer();
-                    recognition.stop();
                     setTimeout(nextQuestion, 2000);
                 }
             }, 1000);
         }
-
+        
         function stopTimer() {
             clearInterval(state.countdown);
+            state.countdown = null;
             elements.timerDisplay.textContent = `Temps restant : ${TIME_LIMIT}s`;
         }
 
@@ -381,31 +422,37 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         recognition.onresult = (event) => {
-            stopTimer();
             recognition.stop();
             const transcript = event.results[0][0].transcript.trim().toLowerCase();
             const userAnswer = parseInt(transcript);
             if (!isNaN(userAnswer) && state.correctAnswer !== 0) {
+                stopTimer(); // Arrêter le chronomètre seulement pour une réponse valide
                 checkQCMAnswer(userAnswer);
             } else {
                 elements.message.textContent = "Je n'ai pas compris, répétez.";
+                elements.questionText.textContent = "Question : Je n'ai pas compris, répétez.";
                 speak("Je n'ai pas compris, répétez.", () => {
-                    if (state.currentQuestion <= totalQuestions) recognition.start();
+                    if (state.currentQuestion <= totalQuestions && state.countdown) {
+                        recognition.start(); // Relancer la reconnaissance seulement si le chronomètre est actif
+                    }
                 });
                 setTemporaryState("confused");
             }
         };
 
         recognition.onerror = (event) => {
-            stopTimer();
             recognition.stop();
-            if (event.error !== "aborted") {
-                elements.message.textContent = `Erreur de reconnaissance : ${event.error}. Réessayez.`;
-                speak("Erreur, réessayez.", () => {
-                    if (state.currentQuestion <= totalQuestions) recognition.start();
-                });
-                setTemporaryState("confused");
+            if (event.error === "no-speech" || event.error === "aborted") {
+                return;
             }
+            elements.message.textContent = `Erreur de reconnaissance : ${event.error}. Continuez.`;
+            elements.questionText.textContent = `Question : Erreur, continuez.`;
+            speak("Erreur, continuez.", () => {
+                if (state.currentQuestion <= totalQuestions && state.countdown) {
+                    recognition.start();
+                }
+            });
+            setTemporaryState("confused");
         };
 
         generateMathProblem();
