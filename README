@@ -6,10 +6,10 @@ Le jeu inclut un avatar animé qui réagit aux réponses (correctes ou incorrect
 
 Fonctionnalités
 - Reconnaissance vocale : Répondez aux questions mathématiques en parlant.
-- Avatar animé : Un personnage dessiné sur un canvas qui change d’expression selon les réponses (neutre, content, triste).
+- Avatar animé : Un avatar qui change d’expression selon les réponses (neutre, content, triste).
 - Choix de difficulté : Niveaux facile, moyen et difficile.
 - Nombre de questions personnalisable : 5, 10, 15 ou 20 questions.
-- Classement : Un leaderboard pour afficher les meilleurs scores (à connecter à une base de données).
+- Classement : Un leaderboard pour afficher les meilleurs scores.
 - Effets sonores : Sons pour les réponses correctes et incorrectes.
 
 Prérequis
@@ -33,11 +33,8 @@ Technologies utilisées
 - HTML5 : Structure de la page.
 - CSS3 : Styles et animations.
 - JavaScript : Logique du jeu et animations.
-- Canvas API : Dessin de l’avatar animé.
+- GIF : Pour l’avatar animé.
 - Web Speech API : Reconnaissance vocale et synthèse vocale.
 
 A faire :
-- Changer la voix ??
-- Remplacer - et * par moins et fois pour la transcription orale
-- Corriger avatar QTRobot
-- Faire avec une ia pour que ça soit plus fluide ??
+- Changer la voix
