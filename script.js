@@ -92,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span class="position">${i + 1}</span>
                 <span class="avatar">${entry.name ? entry.name.charAt(0) : '?'}</span>
                 <span class="name">${entry.name || 'Inconnu'}</span>
-                <span class="score">${entry.score ?? 0}/${state.totalQuestions || 20}</span>
+                <span class="score">${entry.score ?? 0}/${20}</span>
             </li>
         `).join("");
     }
