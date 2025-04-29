@@ -210,7 +210,7 @@ button:active {
     transform: translate(-50%, -50%);
     width: 90%;
     max-width: 500px;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 205, 0.95);
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
@@ -252,10 +252,11 @@ button:active {
     width: 100%;
     min-height: 100vh;
     display: none;
-    flex-direction: column;
+    flex-direction: column; /* Correction de la faute de frappe */
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 15px; /* Augmentation du gap pour un espacement plus naturel */
+    padding: 20px; /* Ajout de padding pour éviter que les éléments collent aux bords */
 }
 
 #avatar {
@@ -264,7 +265,7 @@ button:active {
     width: min(90vw, 640px);
     height: calc(min(90vw, 640px) * 9 / 16);
     margin-bottom: 10px;
-    transition: all 0.3s ease;
+    transition: all 0.4s ease;
     object-fit: contain;
 }
 
@@ -278,7 +279,10 @@ button:active {
     z-index: 1000;
     border-radius: 0;
     object-fit: contain;
-    background-color: transparent;
+    background-color: rgba(0, 0, 0, 0.85);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    transform: scale(1.02);
+    transition: all 0.5s ease-in-out;
 }
 
 .text-panel {
@@ -365,23 +369,28 @@ button:active {
 }
 
 .qcm-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 10px;
-    margin-top: 0;
-    width: min(90%, 600px);
+    display: flex; /* Changement de grid à flex pour un meilleur contrôle de l'alignement */
+    flex-wrap: wrap; /* Permet aux boutons de passer à la ligne si nécessaire */
+    justify-content: center; /* Centre les boutons horizontalement */
+    gap: 15px; /* Espacement uniforme entre les boutons */
+    margin: 10px 0; /* Ajout de marge pour espacement vertical */
+    width: min(90%, 600px); /* Largeur cohérente avec les autres éléments */
 }
 
 .qcm-options button {
     background-color: #2196F3;
-    padding: 10px;
-    font-size: 1rem;
-    margin: 0;
-    transition: background-color 0.5s ease;
+    padding: 10px 20px; /* Ajustement du padding pour des boutons plus équilibrés */
+    font-size: 1.1rem; /* Légère augmentation de la taille de la police */
+    margin: 0; /* Suppression de la marge pour éviter des décalages */
+    border-radius: 8px; /* Bordures légèrement plus douces */
+    flex: 1 1 100px; /* Les boutons occupent un espace minimum de 100px */
+    max-width: 120px; /* Limite de largeur pour éviter des boutons trop larges */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Ajout d'une transition pour transform */
 }
 
 .qcm-options button:hover {
     background-color: #1976D2;
+    transform: scale(1.05); /* Effet de survol cohérent avec les autres boutons */
 }
 
 .qcm-options button.correct {
@@ -423,7 +432,12 @@ button:active {
     }
 
     .qcm-options {
-        grid-template-columns: repeat(2, 1fr);
+        gap: 10px; /* Réduction de l'espacement pour petits écrans */
+    }
+
+    .qcm-options button {
+        flex: 1 1 80px; /* Réduction de la taille minimum des boutons */
+        max-width: 100px; /* Ajustement pour petits écrans */
     }
 }
 
@@ -443,5 +457,20 @@ button:active {
     #avatar {
         width: 100%;
         height: auto;
+    }
+
+    #avatar.fullscreen {
+        object-fit: contain;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .qcm-options {
+        flex-direction: column; /* Les boutons s'empilent verticalement sur petits écrans */
+        align-items: center;
+    }
+
+    .qcm-options button {
+        width: 100%; /* Les boutons occupent toute la largeur disponible */
+        max-width: 200px; /* Limite pour éviter des boutons trop larges */
     }
 }
