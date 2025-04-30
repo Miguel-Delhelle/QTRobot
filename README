@@ -3,6 +3,7 @@ Math Voice Game avec Avatar
 Description
 Un jeu éducatif interactif qui permet aux joueurs de résoudre des problèmes mathématiques en utilisant la reconnaissance vocale.
 Le jeu inclut un avatar animé qui réagit aux réponses (correctes ou incorrectes) et propose différents niveaux de difficulté ainsi qu’un choix du nombre de questions.
+Vous pouvez trouver une vidéo de présentation à cette uri https://drive.google.com/file/d/1Qwulf6E9j-tAEqMDliGevrpn0-4REYxA/view
 
 Fonctionnalités
 - Reconnaissance vocale : Répondez aux questions mathématiques en parlant.
@@ -19,7 +20,8 @@ Prérequis
 Installation
 - Clonez ou téléchargez ce dépôt.
 - Assurez-vous que les fichiers correct.mp3 et wrong.mp3 sont dans le même dossier que index.html.
-- Ouvrez index.html dans un navigateur compatible (ex. Safari).
+- Ouvrez index.html dans un navigateur (hormis firefox, qui ne supporte pas l'application).
+- Vous pouvez également essayer directement depuis l'uri ci-dessous.
 
 Utilisation
 - Entrez votre pseudo dans le champ prévu.
@@ -36,5 +38,5 @@ Technologies utilisées
 - GIF : Pour l’avatar animé.
 - Web Speech API : Reconnaissance vocale et synthèse vocale.
 
-A faire :
-- Changer la voix
+Lien internet pour essayer directement:
+https://miguel-delhelle.github.io/QTRobot/
